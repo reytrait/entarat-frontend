@@ -1,39 +1,39 @@
-import { Button } from "@/components/ui/button";
+import Image from "next/image";
+import { ThemeToggle } from "@/components/theme-toggle";
+import { EntaratBtn } from "@/components/ui/entarat-btn";
 import { HERO, NAVIGATION, SITE_CONFIG } from "@/lib/constants";
 
 export function Hero() {
   return (
     <section className="relative min-h-screen w-full overflow-hidden bg-white dark:bg-transparent">
-      {/* Dark mode: Gradient background with grid pattern */}
+      {/* Dark mode: Gradient background with lines pattern */}
       <div
         className="absolute inset-0 hidden dark:block"
         style={{
-          background:
-            "linear-gradient(to bottom right, rgb(251 191 36), rgb(249 115 22), rgb(147 51 234), rgb(0 0 0))",
+          background: "#03010B",
         }}
       >
-        {/* Grid pattern overlay for dark mode */}
+        {/* Lines pattern overlay for dark mode */}
         <div
-          className="absolute inset-0 opacity-30"
+          className="absolute inset-0 opacity-70"
           style={{
-            backgroundImage: `
-              linear-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px),
-              linear-gradient(90deg, rgba(255, 255, 255, 0.1) 1px, transparent 1px)
-            `,
-            backgroundSize: "40px 40px",
+            backgroundImage: "url('/lines_bg.svg')",
+            backgroundPosition: "center",
+            backgroundSize: "cover",
+            backgroundRepeat: "no-repeat",
           }}
         />
       </div>
 
-      {/* Light mode: White background with light grid pattern */}
+      {/* Light mode: White background with lines pattern */}
       <div
         className="absolute inset-0 block bg-white dark:hidden"
         style={{
-          backgroundImage: `
-            linear-gradient(rgba(0, 0, 0, 0.02) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(0, 0, 0, 0.02) 1px, transparent 1px)
-          `,
-          backgroundSize: "40px 40px",
+          backgroundImage: "url('/lines_bg.svg')",
+          backgroundPosition: "center",
+          backgroundSize: "cover",
+          backgroundRepeat: "no-repeat",
+          opacity: 0.1,
         }}
       />
 
@@ -43,10 +43,24 @@ export function Hero() {
         <header className="flex items-center justify-between px-6 py-6 md:px-12 md:py-8">
           {/* Logo */}
           <div className="flex items-center gap-2">
-            <span className="text-2xl">{SITE_CONFIG.logo.emoji}</span>
-            <span className="text-xl font-semibold text-gray-900 dark:text-white md:text-2xl">
-              {SITE_CONFIG.logo.text}
-            </span>
+            {/* Light mode logo (black) */}
+            <Image
+              src={SITE_CONFIG.logo.light}
+              alt={SITE_CONFIG.logo.alt}
+              width={200}
+              height={24}
+              className="h-6 w-auto dark:hidden md:h-8"
+              priority
+            />
+            {/* Dark mode logo (white) */}
+            <Image
+              src={SITE_CONFIG.logo.dark}
+              alt={SITE_CONFIG.logo.alt}
+              width={200}
+              height={24}
+              className="hidden h-6 w-auto dark:block md:h-8"
+              priority
+            />
           </div>
 
           {/* Navigation - hidden on mobile, visible on desktop */}
@@ -62,29 +76,30 @@ export function Hero() {
             ))}
           </nav>
 
-          {/* Create Game Button */}
-          <Button
-            className="bg-amber-400 text-gray-900 shadow-[0_0_20px_rgba(255,68,0,0.3)] transition-shadow hover:bg-amber-500 hover:shadow-[0_0_25px_rgba(255,68,0,0.5)] dark:bg-amber-400 dark:text-black dark:shadow-[0_0_20px_rgba(255,68,0,0.5)] dark:hover:bg-amber-500"
-            size="default"
-          >
-            <svg
-              className="h-4 w-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-              aria-label={HERO.gameControllerIcon.ariaLabel}
-            >
-              <title>{HERO.gameControllerIcon.title}</title>
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-              />
-            </svg>
-            {HERO.buttons.createGame}
-          </Button>
+          {/* Header Actions */}
+          <div className="flex items-center gap-4">
+            <ThemeToggle />
+            {/* Create Game Button */}
+            <EntaratBtn variant="primary" size="default">
+              <svg
+                className="h-4 w-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+                aria-label={HERO.gameControllerIcon.ariaLabel}
+              >
+                <title>{HERO.gameControllerIcon.title}</title>
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                />
+              </svg>
+              {HERO.buttons.createGame}
+            </EntaratBtn>
+          </div>
         </header>
 
         {/* Hero Section */}
@@ -101,10 +116,7 @@ export function Hero() {
 
           {/* CTA Buttons */}
           <div className="flex flex-col gap-4 sm:flex-row">
-            <Button
-              className="bg-amber-400 text-gray-900 shadow-[0_0_20px_rgba(255,68,0,0.3)] transition-shadow hover:bg-amber-500 hover:shadow-[0_0_25px_rgba(255,68,0,0.5)] dark:bg-amber-400 dark:text-black dark:shadow-[0_0_20px_rgba(255,68,0,0.5)] dark:hover:bg-amber-500"
-              size="lg"
-            >
+            <EntaratBtn variant="primary" size="lg">
               <svg
                 className="h-5 w-5"
                 fill="none"
@@ -122,13 +134,9 @@ export function Hero() {
                 />
               </svg>
               {HERO.buttons.createGame}
-            </Button>
+            </EntaratBtn>
 
-            <Button
-              variant="outline"
-              className="border-2 border-gray-900 bg-transparent text-gray-900 transition-colors hover:bg-gray-100 dark:border-white dark:text-white dark:hover:bg-white/10"
-              size="lg"
-            >
+            <EntaratBtn variant="outline" size="lg">
               <svg
                 className="h-5 w-5"
                 fill="none"
@@ -146,7 +154,7 @@ export function Hero() {
                 />
               </svg>
               {HERO.buttons.joinWithCode}
-            </Button>
+            </EntaratBtn>
           </div>
         </div>
       </div>
