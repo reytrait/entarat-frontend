@@ -3,6 +3,7 @@ import { Baloo_2 } from "next/font/google";
 import { ConditionalFooter } from "@/components/conditional-footer";
 import { GameSetupProvider } from "@/components/game-setup-provider";
 import { ThemeProvider } from "@/components/theme-provider";
+import { UserProvider } from "@/components/user-provider";
 import { ThemeScript } from "./theme-script";
 import "./globals.css";
 
@@ -28,7 +29,9 @@ export default function RootLayout({
       <body className={`${baloo2.variable} antialiased`}>
         <ThemeScript />
         <ThemeProvider defaultTheme="dark" storageKey="entarat-theme">
-          <GameSetupProvider>{children}</GameSetupProvider>
+          <UserProvider>
+            <GameSetupProvider>{children}</GameSetupProvider>
+          </UserProvider>
         </ThemeProvider>
         <ConditionalFooter />
       </body>
