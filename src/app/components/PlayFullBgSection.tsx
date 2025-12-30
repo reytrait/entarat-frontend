@@ -12,7 +12,7 @@ const PlayFullBgSection = ({ children }: PlayFullBgSectionProps) => {
     <div className=" bg-main-bg">
       <div className="min-h-screen relative overflow-hidden">
         <div
-          className="absolute inset-0 opacity-10 z-1"
+          className="absolute inset-0 opacity-10 z-1 pointer-events-none"
           style={{
             backgroundImage: "url('/patterns/bg_pattern_repeat.svg')",
             backgroundRepeat: "repeat",

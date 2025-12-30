@@ -90,7 +90,7 @@ const HeroHeader = () => {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="transition-opacity hover:opacity-80"
+                  className="transition-opacity hover:opacity-80 z-5"
                 >
                   {link.label}
                 </Link>

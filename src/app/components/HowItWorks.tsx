@@ -14,7 +14,7 @@ function HowItWorksPink() {
     >
       {/* Repeating Pattern Background */}
       <div
-        className="absolute inset-0 opacity-5"
+        className="absolute inset-0 opacity-5 pointer-events-none"
         style={{
           backgroundImage: "url('/patterns/bg_pattern_repeat.svg')",
           backgroundRepeat: "repeat",

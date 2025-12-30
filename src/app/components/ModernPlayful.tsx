@@ -25,7 +25,7 @@ export function ModernPlayful() {
 
       {/* Repeating Pattern Background */}
       <div
-        className="absolute inset-0"
+        className="absolute inset-0 pointer-events-none"
         style={{
           backgroundImage: "url('/patterns/bg_pattern_repeat.svg')",
           backgroundRepeat: "repeat",

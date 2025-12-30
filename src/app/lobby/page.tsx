@@ -10,6 +10,7 @@ import { EntaratBtn } from "@/components/ui/entarat-btn";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import { useUser } from "@/components/user-provider";
+import { generateGameCode } from "@/lib/utils";
 
 // Mock players data - in real app, this would come from a backend/context
 const MOCK_PLAYERS = [
@@ -26,12 +27,14 @@ export default function LobbyPage() {
   const [gameCode, setGameCode] = useState<string>("");
   const [shareLink, setShareLink] = useState<string>("");
   const [copied, setCopied] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const { displayName } = useUser();
 
   // Generate game code and share link on mount
   useEffect(() => {
-    // Generate a random 6-character code
-    const code = Math.random().toString(36).substring(2, 8).toUpperCase();
+    setMounted(true);
+    // Generate a unique code based on timestamp
+    const code = generateGameCode(6);
     setGameCode(code);
 
     // Generate share link
@@ -57,10 +60,8 @@ export default function LobbyPage() {
     console.log("Starting game:", { gameId, gameCode });
   };
 
-  // QR code data - link to join-game page
-  const qrCodeValue =
-    shareLink ||
-    `${typeof window !== "undefined" ? window.location.origin : ""}/join-game?gameId=${gameId}`;
+  // QR code data - only use shareLink after mount to avoid hydration mismatch
+  const qrCodeValue = mounted && shareLink ? shareLink : "";
 
   return (
     <PlayFullBgSection>
@@ -101,13 +102,25 @@ export default function LobbyPage() {
                     Scan code to join
                   </Text>
                   <div className="flex justify-center rounded-lg bg-white p-4">
-                    <QRCodeSVG
-                      value={qrCodeValue}
-                      size={300}
-                      level="M"
-                      marginSize={2}
-                      fgColor="#1a1a1a"
-                    />
+                    {mounted && qrCodeValue ? (
+                      <QRCodeSVG
+                        value={qrCodeValue}
+                        size={300}
+                        level="M"
+                        marginSize={2}
+                        fgColor="#1a1a1a"
+                      />
+                    ) : (
+                      <div className="h-[300px] w-[300px] flex items-center justify-center">
+                        <Text
+                          variant="small"
+                          textColor="muted"
+                          className="opacity-50"
+                        >
+                          Loading QR code...
+                        </Text>
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -196,7 +209,8 @@ export default function LobbyPage() {
                   <Text
                     variant="h1"
                     textColor="white"
-                    className="font-mono tracking-wider"
+                    className="font-mono tracking-wider "
+                    align="center"
                   >
                     {gameCode}
                   </Text>
