@@ -1,9 +1,14 @@
+"use client";
 import Image from "next/image";
+import { useTheme } from "@/components/theme-provider";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { EntaratBtn } from "@/components/ui/entarat-btn";
 import { HERO, NAVIGATION, SITE_CONFIG } from "@/lib/constants";
 
 const HeroHeader = () => {
+  const { theme } = useTheme();
+
+  const { dark, light } = SITE_CONFIG.logo;
   return (
     //   {/* Header */}
     <header className="flex items-center justify-between py-6 md:py-8">
@@ -11,26 +16,17 @@ const HeroHeader = () => {
       <div className="flex items-center gap-2">
         {/* Light mode logo (black) */}
         <Image
-          src={SITE_CONFIG.logo.light}
+          src={theme === "dark" ? dark : light}
           alt={SITE_CONFIG.logo.alt}
           width={200}
           height={24}
-          className="h-6 w-auto dark:hidden md:h-8"
-          priority
-        />
-        {/* Dark mode logo (white) */}
-        <Image
-          src={SITE_CONFIG.logo.dark}
-          alt={SITE_CONFIG.logo.alt}
-          width={200}
-          height={24}
-          className="hidden h-6 w-auto dark:block md:h-8"
+          className="h-6 w-auto md:h-8"
           priority
         />
       </div>
 
       {/* Navigation - hidden on mobile, visible on desktop */}
-      <nav className="hidden items-center gap-8 text-sm font-medium text-gray-900 dark:text-white md:flex">
+      <nav className="hidden items-center gap-8 text-base font-medium text-main-text md:flex">
         {NAVIGATION.links.map((link) => (
           <a
             key={link.href}

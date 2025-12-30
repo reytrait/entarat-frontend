@@ -17,8 +17,12 @@
 
   function applyTheme(theme) {
     const root = document.documentElement;
-    root.classList.remove(...VALID_THEMES);
-    root.classList.add(theme);
+    // Tailwind only uses 'dark' class - remove it for light mode
+    if (theme === "dark") {
+      root.classList.add("dark");
+    } else {
+      root.classList.remove("dark");
+    }
     console.log("✅ Theme applied:", theme, "Classes:", root.className);
   }
 

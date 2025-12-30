@@ -4,7 +4,12 @@ import { WhyEntarat } from "./WhyEntarat";
 
 const HeroWhyEntarat = () => {
   return (
-    <div className="relative bg-[#03010B] overflow-x-hidden">
+    <div
+      className="relative overflow-x-hidden"
+      style={{
+        backgroundColor: "var(--hero-bg, #03010B)",
+      }}
+    >
       <div className="relative container mx-auto max-md:px-4">
         <Hero />
         <WhyEntarat />

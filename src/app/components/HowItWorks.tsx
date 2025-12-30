@@ -7,7 +7,7 @@ import { HERO, HOW_IT_WORKS } from "@/lib/constants";
 function HowItWorksPink() {
   return (
     <div
-      className="relative py-20 md:py-32"
+      className="relative py-20 md:py-32 z-2"
       style={{
         background: "linear-gradient(to right, rgb(226 0 181), rgb(164 4 83))",
       }}
@@ -88,7 +88,7 @@ export function HowItWorks() {
       {/* Top Section - Pink Background */}
       <HowItWorksPink />
       {/* Bottom Section - Dark Gradient Background */}
-      <div className="relative py-20 md:py-32 bg-[#03010B]">
+      <div className="relative py-20 md:py-32 bg-main-bg">
         <Ellipse type="2" size="110vw" position={{ y: "0%", x: "0%" }} center />
         <Ellipse
           type="1"

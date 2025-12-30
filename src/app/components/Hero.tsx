@@ -6,7 +6,7 @@ import HeroHeader from "./HeroHeader";
 
 export function Hero() {
   return (
-    <section className="relative min-h-screen w-full overflow-hidden overflow-x-hidden bg-[#03010B] dark:bg-transparent">
+    <section className="relative min-h-screen w-full">
       {/* Content */}
       <div className="relative z-10 flex min-h-screen flex-col">
         <HeroHeader />

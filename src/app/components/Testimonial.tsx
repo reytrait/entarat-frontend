@@ -11,7 +11,7 @@ export function Testimonial() {
   return (
     <section
       id="testimonials"
-      className="relative w-full overflow-hidden py-20 md:py-32 bg-[#03010B]"
+      className="relative w-full overflow-hidden py-20 md:py-32 bg-main-bg"
     >
       <Ellipse type="2" size="50%w" position={{ y: "0%", x: "10%" }} center />
       <Ellipse type="1" size="110vw" position={{ y: "0%", x: "0%" }} center />

@@ -2,6 +2,8 @@
 
 @layer base {
   :root {
+    --hero-bg: #ffffff;
+    --main-text: #03010b;
     --background: 0 0% 100%;
     --foreground: 240 10% 3.9%;
     --card: 0 0% 100%;
@@ -25,6 +27,9 @@
   }
 
   .dark {
+    --hero-bg: #03010b;
+    --main-text: #ffffff;
+
     --background: 240 10% 3.9%;
     --foreground: 0 0% 98%;
     --card: 240 10% 3.9%;
@@ -48,6 +53,9 @@
 }
 
 @theme inline {
+  --color-main-bg: var(--hero-bg, #03010b);
+  --color-main-text: var(--main-text, #ffffff);
+
   --color-background: hsl(var(--background));
   --color-foreground: hsl(var(--foreground));
   --color-card: hsl(var(--card));

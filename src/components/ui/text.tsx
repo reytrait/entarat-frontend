@@ -16,7 +16,7 @@ const textVariants = cva("m-0", {
       large: "text-xl md:text-2xl",
     },
     textColor: {
-      default: "text-gray-900 dark:text-white",
+      default: "text-main-text",
       white: "text-white",
       muted: "text-gray-700 dark:text-gray-300",
       "white/90": "text-white/90",

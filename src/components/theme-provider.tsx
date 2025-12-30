@@ -46,16 +46,12 @@ export function ThemeProvider({
     if (typeof window === "undefined") return;
 
     const root = window.document.documentElement;
-    // Only apply theme if it's different from what's already set
-    // This prevents overriding the theme set by the blocking script
-    const currentTheme = root.classList.contains("dark")
-      ? "dark"
-      : root.classList.contains("light")
-        ? "light"
-        : null;
-    if (currentTheme !== theme) {
-      root.classList.remove("light", "dark");
-      root.classList.add(theme);
+    // Tailwind only uses 'dark' class - add it for dark mode, remove for light mode
+    const isDark = root.classList.contains("dark");
+    if (theme === "dark" && !isDark) {
+      root.classList.add("dark");
+    } else if (theme === "light" && isDark) {
+      root.classList.remove("dark");
     }
   }, [theme]);
 

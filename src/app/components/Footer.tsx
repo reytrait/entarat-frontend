@@ -172,7 +172,7 @@ export function Footer() {
         </div>
 
         {/* Copyright */}
-        <div className="mt-12 border-t border-gray-800 pt-8 text-center">
+        <div className="mt-12 border-t border-gray-800 pt-4 text-center">
           <Text variant="small" textColor="white/60" align="center">
             {FOOTER.copyright}
           </Text>
