@@ -3,12 +3,12 @@ import { Footer } from "./components/Footer";
 import { Hero } from "./components/Hero";
 import { HowItWorks } from "./components/HowItWorks";
 import { Testimonial } from "./components/Testimonial";
-import { WhyEntaract } from "./components/WhyEntaract";
+import { WhyEntarat } from "./components/WhyEntarat";
 export default function Home() {
   return (
     <div>
       <Hero />
-      <WhyEntaract />
+      <WhyEntarat />
       <HowItWorks />
       <Testimonial />
       <Footer />

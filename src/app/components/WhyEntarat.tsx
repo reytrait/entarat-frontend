@@ -1,44 +1,25 @@
+import { Ellipse } from "@/components/ui/ellipse";
 import { WHY_ENTARACT } from "@/lib/constants";
 
-export function WhyEntaract() {
+export function WhyEntarat() {
   return (
     <section
       id="features"
-      className="relative w-full overflow-hidden bg-white py-20 dark:bg-transparent md:py-32"
+      className="relative w-full overflow-hidden bg-[#03010B] py-20 dark:bg-[#03010B] md:py-32"
     >
-      {/* Dark mode: Gradient background with lines pattern */}
-      <div className="absolute inset-0 hidden dark:block">
-        {/* Colorful accent at top */}
-        <div
-          className="absolute top-0 h-32 w-full opacity-80 blur-3xl"
-          style={{
-            background:
-              "linear-gradient(to right, rgb(236 72 153), rgb(239 68 68), rgb(251 146 60), rgb(34 197 94), rgb(59 130 246), rgb(147 51 234))",
-          }}
-        />
-        {/* Lines pattern overlay */}
-        <div
-          className="absolute inset-0 opacity-30"
-          style={{
-            backgroundImage: "url('/lines_bg.svg')",
-            backgroundPosition: "center",
-            backgroundSize: "cover",
-            backgroundRepeat: "no-repeat",
-          }}
-        />
-      </div>
-
-      {/* Light mode: White background with lines pattern */}
       <div
-        className="absolute inset-0 block bg-white dark:hidden"
+        className="absolute inset-0 opacity-70"
         style={{
           backgroundImage: "url('/lines_bg.svg')",
           backgroundPosition: "center",
           backgroundSize: "cover",
           backgroundRepeat: "no-repeat",
-          opacity: 0.1,
         }}
       />
+
+      <Ellipse type="2" size="110vw" position={{ y: "100%", x: "0%" }} center />
+      <Ellipse type="1" size="120%w" position={{ y: "0%", x: "100%" }} center />
+      <Ellipse type="3" size="70vw" position={{ y: "50%", x: "50%" }} center />
 
       {/* Content */}
       <div className="relative z-10 mx-auto max-w-7xl px-6 md:px-12">

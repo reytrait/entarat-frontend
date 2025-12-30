@@ -1,11 +1,12 @@
 import Image from "next/image";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { Ellipse } from "@/components/ui/ellipse";
 import { EntaratBtn } from "@/components/ui/entarat-btn";
 import { HERO, NAVIGATION, SITE_CONFIG } from "@/lib/constants";
 
 export function Hero() {
   return (
-    <section className="relative min-h-screen w-full overflow-hidden bg-white dark:bg-transparent">
+    <section className="relative min-h-screen w-full overflow-hidden overflow-x-hidden bg-[#03010B] dark:bg-transparent">
       {/* Dark mode: Gradient background with lines pattern */}
       <div
         className="absolute inset-0 hidden dark:block"
@@ -36,6 +37,17 @@ export function Hero() {
           opacity: 0.1,
         }}
       />
+
+      {/* Ellipse Decorations */}
+      {/* <Ellipse type="1" size="lg" position={{ top: "-5%", left: "-5%" }} /> */}
+      <Ellipse type="2" size="110vw" position={{ y: "0%", x: "0%" }} center />
+      <Ellipse
+        type="1"
+        size="120%w"
+        position={{ y: "100%", x: "100%" }}
+        center
+      />
+      <Ellipse type="3" size="70vw" position={{ y: "50%", x: "50%" }} center />
 
       {/* Content */}
       <div className="relative z-10 flex min-h-screen flex-col">
