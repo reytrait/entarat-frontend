@@ -1,7 +1,12 @@
 // Site-wide constants and content
 // Update content here to easily manage all text across the application
 
-export const HIDDEN_FOOTER_PAGES = ["/game-setup", "/login", "/register"];
+export const HIDDEN_FOOTER_PAGES = [
+  "/game-setup",
+  "/login",
+  "/register",
+  "/join-game",
+];
 
 export const SITE_CONFIG = {
   name: "Entarat",
