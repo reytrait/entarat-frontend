@@ -103,9 +103,10 @@ export default function LobbyPage() {
                   <div className="flex justify-center rounded-lg bg-white p-4">
                     <QRCodeSVG
                       value={qrCodeValue}
-                      size={200}
-                      level="H"
-                      includeMargin={false}
+                      size={300}
+                      level="M"
+                      marginSize={2}
+                      fgColor="#1a1a1a"
                     />
                   </div>
                 </div>
@@ -125,7 +126,7 @@ export default function LobbyPage() {
                         key={player.id}
                         className="flex items-center gap-3 rounded-md bg-gray-800/50 p-2"
                       >
-                        <div className="relative h-8 w-8 flex-shrink-0">
+                        <div className="relative h-8 w-8 shrink-0">
                           <Image
                             src={player.avatar}
                             alt={player.name}
