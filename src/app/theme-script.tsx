@@ -1,34 +1,7 @@
-export function ThemeScript() {
-  const codeToRunOnClient = `
-(function() {
-  const storageKey = 'entarat-theme';
-  const defaultTheme = 'dark';
-  
-  function getTheme() {
-    try {
-      const stored = localStorage.getItem(storageKey);
-      if (stored === 'dark' || stored === 'light') {
-        return stored;
-      }
-    } catch (e) {
-      // localStorage not available
-    }
-    return defaultTheme;
-  }
-  
-  const theme = getTheme();
-  const root = document.documentElement;
-  root.classList.remove('light', 'dark');
-  root.classList.add(theme);
-})();
-  `.trim();
+import Script from "next/script";
 
+export function ThemeScript() {
   return (
-    <script
-      dangerouslySetInnerHTML={{
-        __html: codeToRunOnClient,
-      }}
-    />
+    <Script id="theme-init" strategy="beforeInteractive" src="/theme-init.js" />
   );
 }
-

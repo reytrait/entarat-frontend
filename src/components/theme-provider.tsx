@@ -46,8 +46,17 @@ export function ThemeProvider({
     if (typeof window === "undefined") return;
 
     const root = window.document.documentElement;
-    root.classList.remove("light", "dark");
-    root.classList.add(theme);
+    // Only apply theme if it's different from what's already set
+    // This prevents overriding the theme set by the blocking script
+    const currentTheme = root.classList.contains("dark")
+      ? "dark"
+      : root.classList.contains("light")
+        ? "light"
+        : null;
+    if (currentTheme !== theme) {
+      root.classList.remove("light", "dark");
+      root.classList.add(theme);
+    }
   }, [theme]);
 
   React.useEffect(() => {
