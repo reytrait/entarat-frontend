@@ -5,21 +5,7 @@ import { WhyEntarat } from "./WhyEntarat";
 const HeroWhyEntarat = () => {
   return (
     <div className="relative bg-[#03010B] overflow-x-hidden">
-      {/* Sticky Background Pattern - sticks while scrolling through content, then scrolls away */}
-      <div
-        className="sticky top-0 z-1 h-screen w-full opacity-70"
-        style={{
-          backgroundImage: "url('/lines_bg.svg')",
-          backgroundPosition: "center",
-          backgroundSize: "cover",
-          backgroundRepeat: "no-repeat",
-          pointerEvents: "none",
-        }}
-      />
-
-      {/* Content wrapper - pushes sticky background to scroll away at bottom */}
-      <div className="relative -mt-[200vh]">
-        <div className="h-screen" />
+      <div className="relative container mx-auto max-md:px-4">
         <Hero />
         <WhyEntarat />
       </div>

@@ -4,8 +4,8 @@
 export const SITE_CONFIG = {
   name: "Entarat",
   logo: {
-    light: "/entarat-logo__black.svg",
-    dark: "/entarat-logo__white.svg",
+    light: "/assets/logo/entarat-logo__black.svg",
+    dark: "/assets/logo/entarat-logo__white.svg",
     alt: "Entarat Logo",
     text: "Entarat",
   },

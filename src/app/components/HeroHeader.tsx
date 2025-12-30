@@ -6,7 +6,7 @@ import { HERO, NAVIGATION, SITE_CONFIG } from "@/lib/constants";
 const HeroHeader = () => {
   return (
     //   {/* Header */}
-    <header className="flex items-center justify-between py-6 md:py-8 self-center container">
+    <header className="flex items-center justify-between py-6 md:py-8">
       {/* Logo */}
       <div className="flex items-center gap-2">
         {/* Light mode logo (black) */}

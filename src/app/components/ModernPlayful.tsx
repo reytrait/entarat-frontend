@@ -5,7 +5,7 @@ export function ModernPlayful() {
   return (
     <section
       id="cta"
-      className="relative w-full overflow-hidden py-20 md:py-32"
+      className="relative w-full overflow-hidden py-20 md:py-32 z-2"
       style={{
         background:
           "radial-gradient(ellipse at center, rgb(30 2 157), rgb(10 0 57))",
@@ -35,16 +35,18 @@ export function ModernPlayful() {
       />
 
       {/* Content */}
-      <div className="relative z-10 mx-auto max-w-4xl px-6 text-center md:px-12">
+      <div className="relative z-10 mx-auto container max-md:px-4 text-center md:px-12">
         {/* Headline */}
         <h2 className="mb-8 text-5xl font-bold text-white md:text-6xl lg:text-7xl">
           {MODERN_PLAYFUL.title}
         </h2>
 
         {/* Description */}
-        <div className="mb-12 space-y-4 text-left text-lg leading-relaxed text-white md:text-xl lg:text-2xl">
+        <div className="mb-12 space-y-4 text-lg leading-relaxed text-white md:text-xl lg:text-2xl text-center">
           {MODERN_PLAYFUL.description.map((line) => (
-            <p key={line.slice(0, 30)}>{line}</p>
+            <p key={line.slice(0, 30)} className="m-0">
+              {line}
+            </p>
           ))}
         </div>
 

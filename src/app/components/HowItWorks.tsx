@@ -1,17 +1,23 @@
 import Image from "next/image";
+import { Ellipse } from "@/components/ui/ellipse";
 import { EntaratBtn } from "@/components/ui/entarat-btn";
 import { HERO, HOW_IT_WORKS } from "@/lib/constants";
 
 function HowItWorksPink() {
   return (
-    <div className="relative bg-pink-500 py-20 md:py-32">
+    <div
+      className="relative py-20 md:py-32"
+      style={{
+        background: "linear-gradient(to right, rgb(226 0 181), rgb(164 4 83))",
+      }}
+    >
       {/* Repeating Pattern Background */}
       <div
-        className="absolute inset-0 opacity-20"
+        className="absolute inset-0 opacity-5"
         style={{
           backgroundImage: "url('/patterns/bg_pattern_repeat.svg')",
           backgroundRepeat: "repeat",
-          backgroundSize: "25% auto",
+          backgroundSize: "30% auto",
         }}
       />
 
@@ -81,13 +87,15 @@ export function HowItWorks() {
       {/* Top Section - Pink Background */}
       <HowItWorksPink />
       {/* Bottom Section - Dark Gradient Background */}
-      <div
-        className="relative py-20 md:py-32"
-        style={{
-          background:
-            "linear-gradient(to right, rgb(20 83 45), rgb(88 28 135), rgb(0 0 0))",
-        }}
-      >
+      <div className="relative py-20 md:py-32 bg-[#03010B]">
+        <Ellipse type="2" size="110vw" position={{ y: "0%", x: "0%" }} center />
+        <Ellipse
+          type="1"
+          size="120%w"
+          position={{ y: "50%", x: "100%" }}
+          center
+        />
+
         {/* Grid Pattern Overlay */}
         <div
           className="absolute inset-0 opacity-30"

@@ -3,12 +3,12 @@ import { FOOTER, SITE_CONFIG } from "@/lib/constants";
 
 export function Footer() {
   return (
-    <footer className="relative w-full bg-black text-white">
+    <footer className="relative w-full bg-black text-white z-2">
       {/* Dark grey strip at bottom */}
       <div className="h-1 bg-gray-800" />
 
       {/* Main Footer Content */}
-      <div className="mx-auto max-w-7xl px-6 py-12 md:px-12 md:py-16">
+      <div className="mx-auto container max-md:px-4 py-12 md:py-16">
         <div className="grid grid-cols-1 items-start gap-8 md:grid-cols-2 lg:grid-cols-5 lg:items-center">
           {/* Logo and Social Media */}
           <div className="lg:col-span-2">

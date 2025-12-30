@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { EntaratBtn } from "@/components/ui/entarat-btn";
-import { HERO, NAVIGATION, SITE_CONFIG } from "@/lib/constants";
+import { HERO } from "@/lib/constants";
 import HeroHeader from "./HeroHeader";
 
 export function Hero() {
@@ -12,15 +12,15 @@ export function Hero() {
         <HeroHeader />
 
         {/* Hero Section */}
-        <div className="flex flex-1 flex-col items-center justify-center self-center pt-20 container">
-          <div className="flex flex-1 flex-col items-center justify-center text-center ">
+        <div className="flex flex-1 gap-5 flex-col items-center justify-center self-center pt-10 md:pt-20">
+          <div className="flex flex-1 gap-4 flex-col items-center justify-center text-center ">
             {/* Main Title */}
-            <h1 className="mb-6 text-5xl font-bold leading-tight text-gray-900 dark:text-white md:text-6xl lg:text-7xl">
+            <h1 className="text-4xl font-bold leading-tight text-gray-900 dark:text-white md:text-6xl lg:text-7xl">
               {HERO.title}
             </h1>
 
             {/* Description */}
-            <p className="mb-10 max-w-2xl text-lg leading-relaxed text-gray-900 dark:text-white md:text-xl">
+            <p className="mb-5 max-w-2xl text-base leading-relaxed text-gray-900 dark:text-white md:text-xl">
               {HERO.description}
             </p>
 

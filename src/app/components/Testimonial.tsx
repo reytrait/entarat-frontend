@@ -2,6 +2,7 @@
 
 import { Splide, SplideSlide } from "@splidejs/react-splide";
 import "@splidejs/react-splide/css";
+import { Ellipse } from "@/components/ui/ellipse";
 import { TestimonialCard } from "@/components/ui/testimonial-card";
 import { TESTIMONIALS } from "@/lib/constants";
 
@@ -9,25 +10,17 @@ export function Testimonial() {
   return (
     <section
       id="testimonials"
-      className="relative w-full overflow-hidden py-20 md:py-32"
-      style={{
-        background:
-          "linear-gradient(to bottom, rgb(88 28 135), rgb(20 83 45), rgb(0 0 0))",
-      }}
+      className="relative w-full overflow-hidden py-20 md:py-32 bg-[#03010B]"
     >
-      {/* Grid Pattern Overlay */}
-      <div
-        className="absolute inset-0 opacity-30"
-        style={{
-          backgroundImage: "url('/lines_bg.svg')",
-          backgroundPosition: "center",
-          backgroundSize: "cover",
-          backgroundRepeat: "no-repeat",
-        }}
-      />
+      <Ellipse type="2" size="50%w" position={{ y: "0%", x: "10%" }} center />
+      <Ellipse type="1" size="110vw" position={{ y: "0%", x: "0%" }} center />
+      <Ellipse type="2" size="50%w" position={{ y: "90%", x: "100%" }} center />
+      <Ellipse type="3" size="50vw" position={{ y: "110%", x: "20%" }} center />
+      <Ellipse type="2" size="50%w" position={{ y: "90%", x: "100%" }} center />
+      <Ellipse type="3" size="80vw" position={{ y: "0%", x: "90%" }} center />
 
       {/* Content */}
-      <div className="relative z-10 mx-auto max-w-7xl px-6 md:px-12">
+      <div className="relative z-10 mx-auto container max-md:px-4 text-center md:px-12">
         {/* Title */}
         <h2 className="mb-12 text-center text-5xl font-bold text-white md:text-6xl lg:text-7xl">
           {TESTIMONIALS.title}

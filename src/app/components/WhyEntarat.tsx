@@ -4,16 +4,13 @@ export function WhyEntarat() {
   return (
     <section
       id="features"
-      className="relative w-full overflow-hidden  z-2 py-20   md:py-32"
+      className="relative w-full overflow-hidden z-2 py-10 md:py-20"
     >
-      {/* Content */}
       <div className="relative z-10 mx-auto max-w-7xl self-center container">
-        {/* Title */}
         <h2 className="mb-12 text-center text-4xl font-bold text-gray-900 dark:text-white md:text-5xl lg:text-6xl">
           {WHY_ENTARACT.title}
         </h2>
 
-        {/* Features Grid */}
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:gap-8">
           {WHY_ENTARACT.features.map((feature) => (
             <div
@@ -23,7 +20,6 @@ export function WhyEntarat() {
                 background: "linear-gradient(to right, #1B1B1B, #411616)",
               }}
             >
-              {/* Icon */}
               <div className="mb-4">
                 {feature.icon === "puzzle" && (
                   <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-green-500">

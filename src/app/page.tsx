@@ -7,7 +7,19 @@ import { Testimonial } from "./components/Testimonial";
 import { WhyEntarat } from "./components/WhyEntarat";
 export default function Home() {
   return (
-    <div>
+    <>
+      {/* Sticky Background Pattern - sticks while scrolling through content, then scrolls away */}
+      <div
+        className="fixed top-0 z-1 h-screen w-dvw opacity-70"
+        style={{
+          backgroundImage: "url('/lines_bg.svg')",
+          backgroundPosition: "center",
+          backgroundSize: "cover",
+          backgroundRepeat: "no-repeat",
+          pointerEvents: "none",
+        }}
+      />
+
       {/* <Hero />
       <WhyEntarat /> */}
       <HeroWhyEntarat />
@@ -15,6 +27,6 @@ export default function Home() {
       <ModernPlayful />
       <Testimonial />
       <Footer />
-    </div>
+    </>
   );
 }
