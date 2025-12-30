@@ -1,9 +1,20 @@
+"use client";
+
 import Link from "next/link";
+import { useEffect } from "react";
 import PlayFullBgSection from "@/app/components/PlayFullBgSection";
 import { EntaratBtn } from "@/components/ui/entarat-btn";
 import { Text } from "@/components/ui/text";
 
 export default function NotFound() {
+  useEffect(() => {
+    // Mark this page as a 404 page
+    document.documentElement.setAttribute("data-page", "not-found");
+    return () => {
+      document.documentElement.removeAttribute("data-page");
+    };
+  }, []);
+
   return (
     <PlayFullBgSection>
       <div className="relative z-10 flex min-h-screen flex-col items-center justify-center px-4 text-center">
