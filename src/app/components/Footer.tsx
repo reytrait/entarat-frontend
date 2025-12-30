@@ -9,7 +9,7 @@ export function Footer() {
 
       {/* Main Footer Content */}
       <div className="mx-auto max-w-7xl px-6 py-12 md:px-12 md:py-16">
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-5">
+        <div className="grid grid-cols-1 items-start gap-8 md:grid-cols-2 lg:grid-cols-5 lg:items-center">
           {/* Logo and Social Media */}
           <div className="lg:col-span-2">
             {/* Logo */}
