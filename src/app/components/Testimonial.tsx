@@ -4,6 +4,7 @@ import { Splide, SplideSlide } from "@splidejs/react-splide";
 import "@splidejs/react-splide/css";
 import { Ellipse } from "@/components/ui/ellipse";
 import { TestimonialCard } from "@/components/ui/testimonial-card";
+import { Text } from "@/components/ui/text";
 import { TESTIMONIALS } from "@/lib/constants";
 
 export function Testimonial() {
@@ -22,9 +23,9 @@ export function Testimonial() {
       {/* Content */}
       <div className="relative z-10 mx-auto container max-md:px-4 text-center md:px-12">
         {/* Title */}
-        <h2 className="mb-12 text-center text-5xl font-bold text-white md:text-6xl lg:text-7xl">
+        <Text variant="h2" textColor="white" align="center" className="mb-12">
           {TESTIMONIALS.title}
-        </h2>
+        </Text>
 
         {/* Carousel */}
         <Splide

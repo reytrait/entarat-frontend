@@ -1,3 +1,4 @@
+import { Text } from "@/components/ui/text";
 import { WHY_ENTARACT } from "@/lib/constants";
 
 export function WhyEntarat() {
@@ -7,9 +8,9 @@ export function WhyEntarat() {
       className="relative w-full overflow-hidden z-2 py-10 md:py-20"
     >
       <div className="relative z-10 mx-auto max-w-7xl self-center container">
-        <h2 className="mb-12 text-center text-4xl font-bold text-gray-900 dark:text-white md:text-5xl lg:text-6xl">
+        <Text variant="h2" textColor="default" align="center" className="mb-12">
           {WHY_ENTARACT.title}
-        </h2>
+        </Text>
 
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:gap-8">
           {WHY_ENTARACT.features.map((feature) => (
@@ -106,14 +107,14 @@ export function WhyEntarat() {
               </div>
 
               {/* Title */}
-              <h3 className="mb-3 text-xl font-bold text-gray-900 dark:text-white md:text-2xl">
+              <Text variant="h3" textColor="default" className="mb-3">
                 {feature.title}
-              </h3>
+              </Text>
 
               {/* Description */}
-              <p className="text-base leading-relaxed text-gray-700 dark:text-gray-300 md:text-lg">
+              <Text variant="body" textColor="muted" leading="relaxed">
                 {feature.description}
-              </p>
+              </Text>
             </div>
           ))}
         </div>

@@ -1,6 +1,6 @@
 import Image from "next/image";
-import { ThemeToggle } from "@/components/theme-toggle";
 import { EntaratBtn } from "@/components/ui/entarat-btn";
+import { Text } from "@/components/ui/text";
 import { HERO } from "@/lib/constants";
 import HeroHeader from "./HeroHeader";
 
@@ -15,14 +15,20 @@ export function Hero() {
         <div className="flex flex-1 gap-5 flex-col items-center justify-center self-center pt-10 md:pt-20">
           <div className="flex flex-1 gap-4 flex-col items-center justify-center text-center ">
             {/* Main Title */}
-            <h1 className="text-4xl font-bold leading-tight text-gray-900 dark:text-white md:text-6xl lg:text-7xl">
+            <Text variant="h1" textColor="default" className="mb-5 max-w-4xl">
               {HERO.title}
-            </h1>
+            </Text>
 
             {/* Description */}
-            <p className="mb-5 max-w-2xl text-base leading-relaxed text-gray-900 dark:text-white md:text-xl">
+            <Text
+              variant="lead"
+              textColor="default"
+              leading="relaxed"
+              align="center"
+              className="mb-5 max-w-4xl"
+            >
               {HERO.description}
-            </p>
+            </Text>
 
             {/* CTA Buttons */}
             <div className="flex flex-col gap-4 sm:flex-row">

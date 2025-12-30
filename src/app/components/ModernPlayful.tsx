@@ -1,4 +1,5 @@
 import { EntaratBtn } from "@/components/ui/entarat-btn";
+import { Text } from "@/components/ui/text";
 import { HERO, MODERN_PLAYFUL } from "@/lib/constants";
 
 export function ModernPlayful() {
@@ -37,16 +38,22 @@ export function ModernPlayful() {
       {/* Content */}
       <div className="relative z-10 mx-auto container max-md:px-4 text-center md:px-12">
         {/* Headline */}
-        <h2 className="mb-8 text-5xl font-bold text-white md:text-6xl lg:text-7xl">
+        <Text variant="h2" textColor="white" align="center" className="mb-8">
           {MODERN_PLAYFUL.title}
-        </h2>
+        </Text>
 
         {/* Description */}
-        <div className="mb-12 space-y-4 text-lg leading-relaxed text-white md:text-xl lg:text-2xl text-center">
+        <div className="mb-12 space-y-4">
           {MODERN_PLAYFUL.description.map((line) => (
-            <p key={line.slice(0, 30)} className="m-0">
+            <Text
+              key={line.slice(0, 30)}
+              variant="lead"
+              textColor="white"
+              leading="relaxed"
+              align="center"
+            >
               {line}
-            </p>
+            </Text>
           ))}
         </div>
 

@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { Ellipse } from "@/components/ui/ellipse";
 import { EntaratBtn } from "@/components/ui/entarat-btn";
+import { Text } from "@/components/ui/text";
 import { HERO, HOW_IT_WORKS } from "@/lib/constants";
 
 function HowItWorksPink() {
@@ -51,9 +52,9 @@ function HowItWorksPink() {
 
           {/* Right Side - Title and Steps */}
           <div className="flex flex-col justify-center">
-            <h2 className="mb-8 text-5xl font-bold text-white md:text-6xl lg:text-7xl">
+            <Text variant="h2" textColor="white" className="mb-8">
               {HOW_IT_WORKS.title}
-            </h2>
+            </Text>
 
             <div className="space-y-6">
               {HOW_IT_WORKS.steps.map((step) => (
@@ -62,15 +63,15 @@ function HowItWorksPink() {
                     <span className="text-2xl">•</span>
                   </div>
                   <div className="flex-1">
-                    <h3 className="mb-2 text-2xl font-bold text-white md:text-3xl">
+                    <Text variant="h3" textColor="white" className="mb-2">
                       {step.title}
                       {"emoji" in step && step.emoji && (
                         <span className="ml-2 text-2xl">{step.emoji}</span>
                       )}
-                    </h3>
-                    <p className="text-lg leading-relaxed text-white/90 md:text-xl">
+                    </Text>
+                    <Text variant="lead" textColor="white/90" leading="relaxed">
                       {step.description}
-                    </p>
+                    </Text>
                   </div>
                 </div>
               ))}
@@ -113,17 +114,22 @@ export function HowItWorks() {
             {/* Left Side - Title and Philosophy */}
             <div className="flex flex-col justify-center">
               <div className="mb-8 flex items-center gap-4">
-                <h2 className="text-5xl font-bold text-white md:text-6xl lg:text-7xl">
+                <Text variant="h2" textColor="white">
                   {HOW_IT_WORKS.philosophy.title}
-                </h2>
+                </Text>
                 <span className="text-4xl">
                   {HOW_IT_WORKS.philosophy.emoji}
                 </span>
               </div>
 
-              <p className="mb-8 text-lg leading-relaxed text-white md:text-xl lg:text-2xl">
+              <Text
+                variant="lead"
+                textColor="white"
+                leading="relaxed"
+                className="mb-8"
+              >
                 {HOW_IT_WORKS.philosophy.description}
-              </p>
+              </Text>
 
               <EntaratBtn variant="primary" size="lg">
                 <svg

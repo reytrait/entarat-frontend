@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { Text } from "@/components/ui/text";
 import { FOOTER, SITE_CONFIG } from "@/lib/constants";
 
 export function Footer() {
@@ -114,9 +115,9 @@ export function Footer() {
 
           {/* Navigation Column */}
           <div>
-            <h3 className="mb-4 text-lg font-bold">
+            <Text variant="h4" textColor="white" className="mb-4">
               {FOOTER.navigation.title}
-            </h3>
+            </Text>
             <ul className="space-y-3">
               {FOOTER.navigation.links.map((link) => (
                 <li key={link.href}>
@@ -133,7 +134,9 @@ export function Footer() {
 
           {/* Games Column */}
           <div>
-            <h3 className="mb-4 text-lg font-bold">{FOOTER.games.title}</h3>
+            <Text variant="h4" textColor="white" className="mb-4">
+              {FOOTER.games.title}
+            </Text>
             <ul className="space-y-3">
               {FOOTER.games.links.map((link) => (
                 <li key={link.href}>
@@ -150,7 +153,9 @@ export function Footer() {
 
           {/* Resources Column */}
           <div>
-            <h3 className="mb-4 text-lg font-bold">{FOOTER.resources.title}</h3>
+            <Text variant="h4" textColor="white" className="mb-4">
+              {FOOTER.resources.title}
+            </Text>
             <ul className="space-y-3">
               {FOOTER.resources.links.map((link) => (
                 <li key={link.href}>
@@ -167,8 +172,10 @@ export function Footer() {
         </div>
 
         {/* Copyright */}
-        <div className="mt-12 border-t border-gray-800 pt-8 text-center text-sm text-white/60">
-          <p>{FOOTER.copyright}</p>
+        <div className="mt-12 border-t border-gray-800 pt-8 text-center">
+          <Text variant="small" textColor="white/60" align="center">
+            {FOOTER.copyright}
+          </Text>
         </div>
       </div>
     </footer>
