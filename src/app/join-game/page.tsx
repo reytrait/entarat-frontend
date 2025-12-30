@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { useSearchParams } from "next/navigation";
 import HeroHeader from "@/app/components/HeroHeader";
 import PlayFullBgSection from "@/app/components/PlayFullBgSection";
 import { EntaratBtn } from "@/components/ui/entarat-btn";
@@ -37,14 +38,24 @@ const AVATARS = [
 ];
 
 export default function JoinGamePage() {
+  const searchParams = useSearchParams();
+  const invitedBy = searchParams.get("invitedBy") || "Host";
+  const gameId = searchParams.get("gameId");
+  const code = searchParams.get("code");
+
   const { displayName, setDisplayName, selectedAvatar, setSelectedAvatar } =
     useUser();
 
   const handleJoinGame = () => {
     // TODO: Implement join game logic
-    console.log("Joining game with:", { displayName, selectedAvatar });
+    console.log("Joining game with:", {
+      displayName,
+      selectedAvatar,
+      gameId,
+      code,
+      invitedBy,
+    });
   };
-  const INVITED_BY = "Reynolds";
   return (
     <PlayFullBgSection>
       <div className="min-h-screen">
@@ -69,7 +80,7 @@ export default function JoinGamePage() {
                 align="center"
                 className="mb-8"
               >
-                You have been invited to a Trivia game by {INVITED_BY}
+                You have been invited to a Trivia game by {invitedBy}
               </Text>
 
               {/* Display Name Input */}

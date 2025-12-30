@@ -6,6 +6,7 @@ export const HIDDEN_FOOTER_PAGES = [
   "/login",
   "/register",
   "/join-game",
+  "/lobby",
 ];
 
 export const SITE_CONFIG = {

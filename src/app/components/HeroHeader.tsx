@@ -21,6 +21,28 @@ const HeroHeader = () => {
   const removeNavs = REMOVE_NAVS.some((page) => pathname?.startsWith(page));
 
   const { dark, light } = SITE_CONFIG.logo;
+  const tempPages = [
+    {
+      path: "/",
+      title: "Home",
+    },
+    {
+      path: "/game-review",
+      title: "Game Preview",
+    },
+    {
+      path: "/game-setup",
+      title: "Game Setup",
+    },
+    {
+      path: "/join-game",
+      title: "Join Game",
+    },
+    {
+      path: "/lobby",
+      title: "Lobby",
+    },
+  ];
 
   const handleCreateGame = () => {
     router.push("/game-setup");
@@ -29,6 +51,19 @@ const HeroHeader = () => {
     //   {/* Header */}
     // <header className="bg-main-bg">
     <header>
+      {tempPages && (
+        <div className="fixed top-0 right-0 bg-red-950-200 z-99 flex gap-2">
+          {tempPages.map((page) => (
+            <Link
+              key={page.path}
+              href={page.path}
+              className="cursor-pointer bg-amber-200 z-99"
+            >
+              {page.title}
+            </Link>
+          ))}
+        </div>
+      )}
       <div className="flex items-center justify-between py-6 md:py-8 container mx-auto max-md:px-4">
         {/* Logo */}
         <div className="flex items-center gap-2">
