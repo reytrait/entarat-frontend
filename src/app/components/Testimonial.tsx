@@ -57,7 +57,9 @@ export function Testimonial() {
           className="testimonial-carousel"
         >
           {TESTIMONIALS.items.map((testimonial, index) => (
-            <SplideSlide key={`${testimonial.name}-${testimonial.quote.slice(0, 20)}-${index}`}>
+            <SplideSlide
+              key={`${testimonial.name}-${testimonial.quote.slice(0, 20)}-${index}`}
+            >
               <div
                 className="transform transition-transform hover:rotate-1"
                 style={{
