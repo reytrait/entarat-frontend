@@ -1,12 +1,40 @@
+"use client";
 import Image from "next/image";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { EntaratBtn } from "@/components/ui/entarat-btn";
 import { Text } from "@/components/ui/text";
 import { HERO } from "@/lib/constants";
 import HeroHeader from "./HeroHeader";
 
 export function Hero() {
+  const pathname = usePathname();
+  const tempPages = [
+    {
+      path: "/game-setup",
+      title: "Game Setup",
+    },
+    {
+      path: "/join-game",
+      title: "Join Game",
+    },
+  ];
   return (
     <section className="relative min-h-screen w-full">
+      {tempPages && (
+        <div className="fixed top-0 right-0 bg-red-950-200 z-99 flex gap-2">
+          {tempPages.map((page) => (
+            <Link
+              key={page.path}
+              href={page.path}
+              className="cursor-pointer bg-amber-200 z-99"
+            >
+              {page.title}
+            </Link>
+          ))}
+        </div>
+      )}
+
       {/* Content */}
       <div className="relative z-10 flex min-h-screen flex-col">
         <HeroHeader />
