@@ -70,6 +70,7 @@ export function Testimonial() {
                   quote={testimonial.quote}
                   name={testimonial.name}
                   avatar={testimonial.avatar}
+                  bgColor={testimonial.bgColor}
                 />
               </div>
             </SplideSlide>

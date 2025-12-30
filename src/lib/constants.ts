@@ -112,30 +112,153 @@ export const HOW_IT_WORKS = {
   },
 } as const;
 
+export const BRAND_COLORS = {
+  primary: {
+    orange: "#FFAD0D",
+    magenta: "#E0006D",
+    blue: "#1E029D",
+  },
+  secondary: {
+    teal: "#00E4D5",
+    limeGreen: "#00FF00",
+    red: "#FF0004",
+    black: "#000000",
+  },
+  gradients: {
+    orangeYellow: {
+      from: "#FFAD0D",
+      to: "#FFD700",
+    },
+    bluePurple: {
+      from: "#1E029D",
+      to: "#0A0039",
+    },
+    magentaPink: {
+      from: "#E0006D",
+      to: "#8B008B",
+    },
+  },
+} as const;
+
+export const MODERN_PLAYFUL = {
+  title: "Modern. Playful. Familiar.",
+  description: [
+    "We designed Entarat to feel like a mix between your favorite party app and your favorite people.",
+    "Custom avatars. Voice filters. Animated reactions.",
+    "Every interaction feels warm, expressive, and human.",
+  ],
+  button: {
+    text: "Create Game",
+  },
+} as const;
+
+export const AVATARS = {
+  blue: {
+    square: "/avatars/avatar-blue-square.svg",
+    square2: "/avatars/avatar-blue-square-2.svg",
+    square3: "/avatars/avatar-blue-square-3.svg",
+  },
+  cyan: {
+    default: "/avatars/avatar-cyan.svg",
+    smile: "/avatars/avatar-cyan-smile.svg",
+    square: "/avatars/avatar-cyan-square.svg",
+    square2: "/avatars/avatar-cyan-square-2.svg",
+    square3: "/avatars/avatar-cyan-square-3.svg",
+    squareVariant: "/avatars/avatar-cyan-square-variant.svg",
+  },
+  gradient: {
+    default: "/avatars/avatar-gradient.svg",
+    variant: "/avatars/avatar-gradient-variant.svg",
+    square: "/avatars/avatar-gradient-square.svg",
+  },
+  green: {
+    default: "/avatars/avatar-green.svg",
+    variant: "/avatars/avatar-green-variant.svg",
+    square: "/avatars/avatar-green-square.svg",
+    square2: "/avatars/avatar-green-square-2.svg",
+  },
+  orange: {
+    default: "/avatars/avatar-orange.svg",
+    square: "/avatars/avatar-orange-square.svg",
+    square2: "/avatars/avatar-orange-square-2.svg",
+  },
+  pink: {
+    square: "/avatars/avatar-pink-square.svg",
+    square2: "/avatars/avatar-pink-square-2.svg",
+  },
+  purple: {
+    square: "/avatars/avatar-purple-square.svg",
+    square2: "/avatars/avatar-purple-square-2.svg",
+  },
+  red: {
+    default: "/avatars/avatar-red.svg",
+    square: "/avatars/avatar-red-square.svg",
+    square2: "/avatars/avatar-red-square-2.svg",
+    square3: "/avatars/avatar-red-square-3.svg",
+  },
+  teal: {
+    square: "/avatars/avatar-teal-square.svg",
+    square2: "/avatars/avatar-teal-square-2.svg",
+  },
+  yellow: {
+    square: "/avatars/avatar-yellow-square.svg",
+    square2: "/avatars/avatar-yellow-square-2.svg",
+  },
+  placeholder: {
+    gray1: "/avatars/avatar-placeholder-gray-1.svg",
+    gray2: "/avatars/avatar-placeholder-gray-2.svg",
+    gray3: "/avatars/avatar-placeholder-gray-3.svg",
+  },
+  group: {
+    group48: "/avatars/avatar-group-48.svg",
+    group49: "/avatars/avatar-group-49.svg",
+    group49Variant: "/avatars/avatar-group-49-variant.svg",
+    group50: "/avatars/avatar-group-50.svg",
+    group50Variant: "/avatars/avatar-group-50-variant.svg",
+    group51: "/avatars/avatar-group-51.svg",
+    group51Variant: "/avatars/avatar-group-51-variant.svg",
+    group52: "/avatars/avatar-group-52.svg",
+    group52Variant: "/avatars/avatar-group-52-variant.svg",
+    group53: "/avatars/avatar-group-53.svg",
+  },
+  actions: {
+    okSign: "/avatars/avatar-ok-sign.svg",
+    wave: "/avatars/avatar-wave.svg",
+  },
+} as const;
+
 export const TESTIMONIALS = {
   title: "Testimonials/Preview Video",
   items: [
     {
       quote: "It felt like we were all in one room. A real Entarater",
       name: "John",
-      avatar: "😊",
+      avatar: "/avatars/avatar-cyan-smile.svg",
+      avatarColor: "cyan",
+      bgColor: BRAND_COLORS.primary.orange,
     },
     {
       quote:
         "We ditched Zoom and never looked back. Entarat is our new Friday ritual.",
       name: "John",
-      avatar: "🍞",
+      avatar: "/avatars/avatar-orange.svg",
+      avatarColor: "orange",
+      bgColor: BRAND_COLORS.primary.magenta,
     },
     {
       quote:
         "Perfect for remote teams. Casual, creative, and zero awkward pauses",
       name: "Rena",
-      avatar: "😐",
+      avatar: "/avatars/avatar-green.svg",
+      avatarColor: "green",
+      bgColor: BRAND_COLORS.secondary.teal,
     },
     {
       quote: "It felt like we were all in one room.",
       name: "John",
-      avatar: "😮",
+      avatar: "/avatars/avatar-red.svg",
+      avatarColor: "red",
+      bgColor: BRAND_COLORS.primary.blue,
     },
   ],
 } as const;

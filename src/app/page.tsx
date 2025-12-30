@@ -2,6 +2,7 @@ import Image from "next/image";
 import { Footer } from "./components/Footer";
 import { Hero } from "./components/Hero";
 import { HowItWorks } from "./components/HowItWorks";
+import { ModernPlayful } from "./components/ModernPlayful";
 import { Testimonial } from "./components/Testimonial";
 import { WhyEntarat } from "./components/WhyEntarat";
 export default function Home() {
@@ -10,6 +11,7 @@ export default function Home() {
       <Hero />
       <WhyEntarat />
       <HowItWorks />
+      <ModernPlayful />
       <Testimonial />
       <Footer />
       <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
