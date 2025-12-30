@@ -1,28 +1,13 @@
-import { Ellipse } from "@/components/ui/ellipse";
 import { WHY_ENTARACT } from "@/lib/constants";
 
 export function WhyEntarat() {
   return (
     <section
       id="features"
-      className="relative w-full overflow-hidden bg-[#03010B] py-20 dark:bg-[#03010B] md:py-32"
+      className="relative w-full overflow-hidden  z-2 py-20   md:py-32"
     >
-      <div
-        className="absolute inset-0 opacity-70"
-        style={{
-          backgroundImage: "url('/lines_bg.svg')",
-          backgroundPosition: "center",
-          backgroundSize: "cover",
-          backgroundRepeat: "no-repeat",
-        }}
-      />
-
-      <Ellipse type="2" size="110vw" position={{ y: "100%", x: "0%" }} center />
-      <Ellipse type="1" size="120%w" position={{ y: "0%", x: "100%" }} center />
-      <Ellipse type="3" size="70vw" position={{ y: "50%", x: "50%" }} center />
-
       {/* Content */}
-      <div className="relative z-10 mx-auto max-w-7xl px-6 md:px-12">
+      <div className="relative z-10 mx-auto max-w-7xl self-center container">
         {/* Title */}
         <h2 className="mb-12 text-center text-4xl font-bold text-gray-900 dark:text-white md:text-5xl lg:text-6xl">
           {WHY_ENTARACT.title}
@@ -33,7 +18,10 @@ export function WhyEntarat() {
           {WHY_ENTARACT.features.map((feature) => (
             <div
               key={feature.title}
-              className="rounded-2xl bg-gray-50 p-8 dark:bg-gray-900/50 dark:backdrop-blur-sm"
+              className="rounded-2xl p-8 dark:backdrop-blur-sm"
+              style={{
+                background: "linear-gradient(to right, #1B1B1B, #411616)",
+              }}
             >
               {/* Icon */}
               <div className="mb-4">

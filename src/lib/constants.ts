@@ -33,6 +33,48 @@ export const HERO = {
     ariaLabel: "Game controller icon",
     title: "Game controller",
   },
+  gameCards: [
+    {
+      title: "Trivia Time",
+      description:
+        "The ultimate brain battle. Test your knowledge across pop science, and weird facts. Quiz",
+      color: "#E0006D",
+      rotation: -12,
+      zIndex: 1,
+    },
+    {
+      title: "Complete the Word",
+      description:
+        "One letter can change ever. Take turns filling in blanks — smarts win the roun.",
+      color: "#FF0004",
+      rotation: -6,
+      zIndex: 2,
+    },
+    {
+      title: "Charades",
+      description:
+        "Act it out, no words allowed. Guess the word from your friend's wild gestures and dramatic performances",
+      color: "#1E029D",
+      rotation: 0,
+      zIndex: 3,
+    },
+    {
+      title: "Quick Quiz",
+      description:
+        "Race against time to answer quirky questions with your crew. Guess the Sound",
+      color: "#00FF00",
+      rotation: 6,
+      zIndex: 2,
+    },
+    {
+      title: "Word Dash",
+      description:
+        "Think fast under pressure. A word scramble game — rack up points before the buzzer!",
+      color: "#0A0039",
+      rotation: 12,
+      zIndex: 1,
+    },
+  ],
 } as const;
 
 export const WHY_ENTARACT = {
