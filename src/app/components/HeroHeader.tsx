@@ -1,15 +1,25 @@
 "use client";
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 import { useTheme } from "@/components/theme-provider";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { EntaratBtn } from "@/components/ui/entarat-btn";
 import { HERO, NAVIGATION, SITE_CONFIG } from "@/lib/constants";
 
 const HeroHeader = () => {
+  const router = useRouter();
+  const pathname = usePathname();
   const { theme } = useTheme();
 
+  // Hide Create Game button on game-setup page
+  const showCreateGameButton = !pathname?.startsWith("/game-setup");
+
   const { dark, light } = SITE_CONFIG.logo;
+
+  const handleCreateGame = () => {
+    router.push("/game-setup");
+  };
   return (
     //   {/* Header */}
     // <header className="bg-main-bg">
@@ -59,25 +69,31 @@ const HeroHeader = () => {
         <div className="flex items-center gap-4">
           <ThemeToggle />
           {/* Create Game Button */}
-          <EntaratBtn variant="primary" size="default">
-            <svg
-              className="h-4 w-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-              aria-label={HERO.gameControllerIcon.ariaLabel}
+          {showCreateGameButton && (
+            <EntaratBtn
+              variant="primary"
+              size="default"
+              onClick={handleCreateGame}
             >
-              <title>{HERO.gameControllerIcon.title}</title>
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-              />
-            </svg>
-            {HERO.buttons.createGame}
-          </EntaratBtn>
+              <svg
+                className="h-4 w-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+                aria-label={HERO.gameControllerIcon.ariaLabel}
+              >
+                <title>{HERO.gameControllerIcon.title}</title>
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                />
+              </svg>
+              {HERO.buttons.createGame}
+            </EntaratBtn>
+          )}
         </div>
       </div>
     </header>

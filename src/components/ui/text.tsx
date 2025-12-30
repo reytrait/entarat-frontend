@@ -6,10 +6,10 @@ import { cn } from "@/lib/utils";
 const textVariants = cva("m-0", {
   variants: {
     variant: {
-      h1: "text-4xl md:text-6xl lg:text-7xl font-bold leading-tight",
-      h2: "text-5xl md:text-6xl lg:text-7xl font-bold leading-tight",
-      h3: "text-xl md:text-2xl lg:text-3xl font-bold leading-tight",
-      h4: "text-lg md:text-xl lg:text-2xl font-bold leading-tight",
+      h1: "text-5xl md:text-6xl lg:text-7xl font-bold leading-tight",
+      h2: "text-4xl md:text-5xl lg:text-6xl font-bold leading-tight",
+      h3: "text-3xl md:text-4xl lg:text-5xl font-bold leading-tight",
+      h4: "text-2xl md:text-3xl lg:text-4xl font-bold leading-tight",
       body: "text-base md:text-lg",
       lead: "text-lg md:text-xl lg:text-2xl",
       small: "text-xs md:text-sm leading-normal",

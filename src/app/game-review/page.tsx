@@ -1,16 +1,22 @@
 "use client";
 
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import HeroHeader from "@/app/components/HeroHeader";
 import { Text } from "@/components/ui/text";
 import { GAMES } from "@/lib/constants/game_reviews";
 
 export default function GameReviewPage() {
+  const router = useRouter();
   const categories = ["All", ...GAMES.map((cat) => cat.category)] as const;
 
   const [selectedCategory, setSelectedCategory] =
     useState<(typeof categories)[number]>("All");
+
+  const handleGameClick = (gameId: string) => {
+    router.push(`/game-setup?gameId=${gameId}`);
+  };
 
   // Filter categories based on selection
   const filteredCategories =
@@ -87,15 +93,17 @@ export default function GameReviewPage() {
                 className="rounded-2xl p-4 md:p-8 h-full w-full"
                 style={{
                   background:
-                    "linear-gradient(90deg, #491616 15%, #423213 47%, #59154B 100%)",
+                    "linear-gradient(to bottom right, #1B1B1B 15%, #411616 100%)",
                 }}
               >
                 {/* Game Cards Grid */}
                 <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                   {categoryGroup.games.map((game) => (
-                    <div
+                    <button
                       key={game.id}
-                      className=" group relative overflow-hidden rounded-2xl p-4 transition-transform hover:scale-105 flex flex-col items-center justify-center border-[0.5px]"
+                      type="button"
+                      onClick={() => handleGameClick(game.id)}
+                      className="cursor-pointer group relative overflow-hidden rounded-2xl p-4 transition-transform hover:scale-105 flex flex-col items-center justify-center border-[0.5px] w-full"
                       style={{
                         backgroundColor: game.bgColor,
                         borderColor: game.borderColor,
@@ -155,7 +163,7 @@ export default function GameReviewPage() {
                       >
                         {game.description}
                       </Text>
-                    </div>
+                    </button>
                   ))}
                 </div>
               </div>
