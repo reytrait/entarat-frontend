@@ -12,8 +12,13 @@ const HeroHeader = () => {
   const pathname = usePathname();
   const { theme } = useTheme();
 
+  const HIDDEN_HEADER_PAGES = ["/game-setup", "/join-game"];
+  const REMOVE_NAVS = ["/game-setup", "/join-game"];
   // Hide Create Game button on game-setup page
-  const showCreateGameButton = !pathname?.startsWith("/game-setup");
+  const showCreateGameButton = !HIDDEN_HEADER_PAGES.some((page) =>
+    pathname?.startsWith(page),
+  );
+  const removeNavs = REMOVE_NAVS.some((page) => pathname?.startsWith(page));
 
   const { dark, light } = SITE_CONFIG.logo;
 
@@ -42,28 +47,30 @@ const HeroHeader = () => {
         </div>
 
         {/* Navigation - hidden on mobile, visible on desktop */}
-        <nav className="hidden items-center gap-8 text-base font-medium text-main-text md:flex">
-          {NAVIGATION.links.map((link) => {
-            const isExternalLink = link.href.startsWith("/");
-            return isExternalLink ? (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="transition-opacity hover:opacity-80"
-              >
-                {link.label}
-              </Link>
-            ) : (
-              <a
-                key={link.href}
-                href={link.href}
-                className="transition-opacity hover:opacity-80"
-              >
-                {link.label}
-              </a>
-            );
-          })}
-        </nav>
+        {!removeNavs ? (
+          <nav className="hidden items-center gap-8 text-base font-medium text-main-text md:flex">
+            {NAVIGATION.links.map((link) => {
+              const isExternalLink = link.href.startsWith("/");
+              return isExternalLink ? (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className="transition-opacity hover:opacity-80"
+                >
+                  {link.label}
+                </Link>
+              ) : (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  className="transition-opacity hover:opacity-80"
+                >
+                  {link.label}
+                </a>
+              );
+            })}
+          </nav>
+        ) : null}
 
         {/* Header Actions */}
         <div className="flex items-center gap-4">

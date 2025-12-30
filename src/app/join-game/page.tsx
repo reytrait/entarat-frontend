@@ -139,7 +139,7 @@ export default function JoinGamePage() {
                   variant="primary"
                   size="lg"
                   onClick={handleJoinGame}
-                  disabled={!displayName.trim() || !selectedAvatar}
+                  disabled={Boolean(!displayName.trim() || !selectedAvatar)}
                   className="w-full md:w-auto"
                 >
                   <svg

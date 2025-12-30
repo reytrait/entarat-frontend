@@ -26,40 +26,48 @@ type UserProviderProps = {
 };
 
 export function UserProvider({ children, ...props }: UserProviderProps) {
-  const [displayName, setDisplayName] = React.useState<string>(() => {
-    if (typeof window === "undefined") return "";
-    const stored = localStorage.getItem("entarat-user-display-name");
-    return stored || "";
-  });
-
+  // Initialize with empty values to avoid hydration mismatch
+  const [displayName, setDisplayName] = React.useState<string>("");
   const [selectedAvatar, setSelectedAvatar] = React.useState<string | null>(
-    () => {
-      if (typeof window === "undefined") return null;
-      const stored = localStorage.getItem("entarat-user-avatar");
-      return stored || null;
-    },
+    null,
   );
+  const [mounted, setMounted] = React.useState(false);
 
-  // Persist to localStorage
+  // Load from localStorage after mount
   React.useEffect(() => {
+    setMounted(true);
     if (typeof window !== "undefined") {
+      const storedName = localStorage.getItem("entarat-user-display-name");
+      const storedAvatar = localStorage.getItem("entarat-user-avatar");
+      if (storedName) {
+        setDisplayName(storedName);
+      }
+      if (storedAvatar) {
+        setSelectedAvatar(storedAvatar);
+      }
+    }
+  }, []);
+
+  // Persist to localStorage after mount
+  React.useEffect(() => {
+    if (mounted && typeof window !== "undefined") {
       if (displayName) {
         localStorage.setItem("entarat-user-display-name", displayName);
       } else {
         localStorage.removeItem("entarat-user-display-name");
       }
     }
-  }, [displayName]);
+  }, [displayName, mounted]);
 
   React.useEffect(() => {
-    if (typeof window !== "undefined") {
+    if (mounted && typeof window !== "undefined") {
       if (selectedAvatar) {
         localStorage.setItem("entarat-user-avatar", selectedAvatar);
       } else {
         localStorage.removeItem("entarat-user-avatar");
       }
     }
-  }, [selectedAvatar]);
+  }, [selectedAvatar, mounted]);
 
   const reset = React.useCallback(() => {
     setDisplayName("");
