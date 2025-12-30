@@ -29,7 +29,7 @@ const HeroHeader = () => {
         <div className="flex items-center gap-2">
           {/* Light mode logo (black) */}
 
-          <Link href="/">
+          <Link href="/" className="z-2 cursor-pointer">
             <Image
               src={theme === "dark" ? dark : light}
               alt={SITE_CONFIG.logo.alt}
