@@ -19,7 +19,7 @@ export function TestimonialCard({
   return (
     <div
       className={cn(
-        "relative rounded-2xl border border-white/30 bg-black/50 p-6 backdrop-blur-sm transition-all hover:scale-105 hover:border-white/50 md:p-8",
+        "relative rounded-2xl border border-white/30 bg-black/50 p-6 backdrop-blur-sm transition-all hover:scale-105 hover:border-white/50 md:p-8 my-8 mx-1",
         className,
       )}
       style={{

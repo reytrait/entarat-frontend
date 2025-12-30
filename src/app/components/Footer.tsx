@@ -9,12 +9,12 @@ export function Footer() {
       <div className="h-1 bg-gray-800" />
 
       {/* Main Footer Content */}
-      <div className="mx-auto container max-md:px-4 py-12 md:py-16">
-        <div className="grid grid-cols-1 items-start gap-8 md:grid-cols-2 lg:grid-cols-5 lg:items-center">
+      <div className="mx-auto container max-md:px-4 pt-12 md:pt-16 pb-4">
+        <div className="grid grid-cols-1 items-start gap-8 md:grid-cols-2 lg:grid-cols-5">
           {/* Logo and Social Media */}
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-2 flex flex-col gap-2 justify-between h-full">
             {/* Logo */}
-            <div className="mb-6 flex items-center gap-2">
+            <div className="mb-6 flex items-center gap-2 justify-between">
               {/* Light mode logo (black) */}
               <Image
                 src={SITE_CONFIG.logo.light}

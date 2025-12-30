@@ -270,7 +270,7 @@ export const AVATARS = {
 } as const;
 
 export const TESTIMONIALS = {
-  title: "Testimonials/Preview Video",
+  title: "Testimonials/ Preview Video",
   items: [
     {
       quote: "It felt like we were all in one room. A real Entarater",
