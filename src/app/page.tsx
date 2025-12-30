@@ -26,7 +26,6 @@ export default function Home() {
       <HowItWorks />
       <ModernPlayful />
       <Testimonial />
-      <Footer />
     </>
   );
 }

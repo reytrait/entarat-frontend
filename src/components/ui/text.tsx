@@ -12,7 +12,7 @@ const textVariants = cva("m-0", {
       h4: "text-lg md:text-xl lg:text-2xl font-bold leading-tight",
       body: "text-base md:text-lg",
       lead: "text-lg md:text-xl lg:text-2xl",
-      small: "text-sm md:text-base",
+      small: "text-xs md:text-sm leading-normal",
       large: "text-xl md:text-2xl",
     },
     textColor: {

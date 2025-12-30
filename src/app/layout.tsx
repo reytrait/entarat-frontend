@@ -3,6 +3,7 @@ import { Baloo_2 } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ThemeScript } from "./theme-script";
 import "./globals.css";
+import { Footer } from "./components/Footer";
 
 const baloo2 = Baloo_2({
   variable: "--font-baloo-2",
@@ -28,6 +29,7 @@ export default function RootLayout({
         <ThemeProvider defaultTheme="dark" storageKey="entarat-theme">
           {children}
         </ThemeProvider>
+        <Footer />
       </body>
     </html>
   );

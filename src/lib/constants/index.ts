@@ -14,7 +14,7 @@ export const SITE_CONFIG = {
 export const NAVIGATION = {
   links: [
     { label: "Hero", href: "#hero" },
-    { label: "Games Preview", href: "#games" },
+    { label: "Games Preview", href: "/game-review" },
     { label: "Features", href: "#features" },
     { label: "Testimonials", href: "#testimonials" },
     { label: "Call-to-Action", href: "#cta" },
