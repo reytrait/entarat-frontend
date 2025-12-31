@@ -9,17 +9,17 @@ import {
   Question,
   WSMsgType,
 } from "../types/game";
+import { ROUND_DURATION_MS } from "./constants";
 import { GameUtilsService } from "./game-utils.service";
 import { RoundTimerService } from "./round-timer.service";
-import { ROUND_DURATION_MS   } from "./constants";
 
 @Injectable()
 export class GameService {
   constructor(
     private readonly databaseService: DatabaseService,
     private readonly gameUtils: GameUtilsService,
-    @Inject(forwardRef(() => RoundTimerService)) private readonly roundTimerService: RoundTimerService,
-
+    @Inject(forwardRef(() => RoundTimerService))
+    private readonly roundTimerService: RoundTimerService,
   ) {}
 
   async handleJoin(
@@ -430,10 +430,7 @@ export class GameService {
     }
   }
 
-  handleNextRound(
-    gameId: string,
-    connections: Map<string, WebSocket>,
-  ) {
+  handleNextRound(gameId: string, connections: Map<string, WebSocket>) {
     const nextGame = this.databaseService.games.get(gameId);
     if (!nextGame) return;
 

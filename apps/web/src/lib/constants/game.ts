@@ -8,4 +8,3 @@ export const ROUND_DURATION_MS = 10000; // 10 seconds per question/round
 
 // Progress update interval in milliseconds
 export const PROGRESS_UPDATE_INTERVAL_MS = 100; // Update every 100ms (~60fps)
-

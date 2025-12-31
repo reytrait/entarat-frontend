@@ -9,12 +9,7 @@ import { RoundTimerService } from "./round-timer.service";
 @Module({
   imports: [DatabaseModule],
   controllers: [GameController],
-  providers: [
-    GameUtilsService,
-    GameService,
-    RoundTimerService,
-    GameGateway,
-  ],
+  providers: [GameUtilsService, GameService, RoundTimerService, GameGateway],
   exports: [GameService, RoundTimerService],
 })
 export class GameModule {}

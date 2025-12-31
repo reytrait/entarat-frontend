@@ -20,24 +20,20 @@
       "recommended": true,
       "style": {
         "useImportType": "off"
-      },
-      "suspicious": {
-        "noDecoratorInConstructorParameter": "off"
       }
     }
   },
   "javascript": {
+    "parser": {
+      "unsafeParameterDecoratorsEnabled": true
+    },
     "formatter": {
       "enabled": true
     }
   },
   "assist": {
     "actions": {
-      "source": {
-        "organizeImports": {
-          "enabled": true
-        }
-      }
+      "source": {}
     }
   }
 }

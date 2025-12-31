@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
-import type { Game, GameSummary, Question } from "../types/game";
 import { DatabaseService } from "../database/database.service";
+import type { Game, GameSummary, Question } from "../types/game";
 
 @Injectable()
 export class GameUtilsService {
@@ -138,4 +138,3 @@ export class GameUtilsService {
     };
   }
 }
-

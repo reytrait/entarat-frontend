@@ -1,4 +1,4 @@
-import { Injectable, Inject, forwardRef } from "@nestjs/common";
+import { forwardRef, Inject, Injectable } from "@nestjs/common";
 import { WebSocket } from "ws";
 import { DatabaseService } from "../database/database.service";
 import { WSMsgType } from "../types/game";
@@ -10,7 +10,8 @@ export class RoundTimerService {
 
   constructor(
     private readonly databaseService: DatabaseService,
-    @Inject(forwardRef(() => GameService)) private readonly gameService: GameService,
+    @Inject(forwardRef(() => GameService))
+    private readonly gameService: GameService,
   ) {}
 
   /**

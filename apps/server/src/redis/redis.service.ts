@@ -1,4 +1,9 @@
-import { Injectable, OnModuleInit, OnModuleDestroy, Logger } from "@nestjs/common";
+import {
+  Injectable,
+  Logger,
+  OnModuleDestroy,
+  OnModuleInit,
+} from "@nestjs/common";
 import Redis from "ioredis";
 import type { Game, Player } from "../types/game";
 
@@ -14,13 +19,13 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
   async onModuleInit() {
     // Only attempt Redis connection if explicitly configured
     const redisUrl = process.env.REDIS_URL;
-    
+
     if (!redisUrl) {
       // Redis is optional - no warning if not configured
       this.logger.log("ℹ️  Redis not configured - using in-memory storage");
       return;
     }
-    
+
     try {
       // Main client for general operations
       this.client = new Redis(redisUrl, {
@@ -44,7 +49,7 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
         enableOfflineQueue: false,
         lazyConnect: true,
       });
-      
+
       // Publisher for pub/sub
       this.publisher = new Redis(redisUrl, {
         retryStrategy: () => null, // Don't retry publisher
@@ -78,8 +83,8 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
       this.connectionAttempted = true;
       await Promise.race([
         this.client.connect(),
-        new Promise((_, reject) => 
-          setTimeout(() => reject(new Error("Connection timeout")), 2000)
+        new Promise((_, reject) =>
+          setTimeout(() => reject(new Error("Connection timeout")), 2000),
         ),
       ]);
 
@@ -88,7 +93,9 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
       this.logger.log("✅ Redis connection verified");
     } catch (error) {
       this.connectionFailed = true;
-      this.logger.warn(`⚠️  Redis connection failed (${redisUrl}) - using in-memory storage`);
+      this.logger.warn(
+        `⚠️  Redis connection failed (${redisUrl}) - using in-memory storage`,
+      );
       // Clean up failed connections
       if (this.client) {
         try {
@@ -141,7 +148,7 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
    */
   async get<T>(key: string): Promise<T | null> {
     if (!this.isAvailable()) return null;
-    
+
     try {
       const value = await this.client!.get(key);
       return value ? JSON.parse(value) : null;
@@ -156,7 +163,7 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
    */
   async set(key: string, value: any, ttlSeconds?: number): Promise<boolean> {
     if (!this.isAvailable()) return false;
-    
+
     try {
       const serialized = JSON.stringify(value);
       if (ttlSeconds) {
@@ -176,7 +183,7 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
    */
   async del(key: string): Promise<boolean> {
     if (!this.isAvailable()) return false;
-    
+
     try {
       await this.client!.del(key);
       return true;
@@ -191,7 +198,7 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
    */
   async exists(key: string): Promise<boolean> {
     if (!this.isAvailable()) return false;
-    
+
     try {
       const result = await this.client!.exists(key);
       return result === 1;
@@ -206,7 +213,7 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
    */
   async expire(key: string, seconds: number): Promise<boolean> {
     if (!this.isAvailable()) return false;
-    
+
     try {
       await this.client!.expire(key, seconds);
       return true;
@@ -221,7 +228,7 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
    */
   async keys(pattern: string): Promise<string[]> {
     if (!this.isAvailable()) return [];
-    
+
     try {
       return await this.client!.keys(pattern);
     } catch (error) {
@@ -233,7 +240,11 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
   /**
    * Cache game state
    */
-  async cacheGame(gameId: string, game: Game, ttlSeconds: number = 3600): Promise<boolean> {
+  async cacheGame(
+    gameId: string,
+    game: Game,
+    ttlSeconds: number = 3600,
+  ): Promise<boolean> {
     return this.set(`game:${gameId}`, game, ttlSeconds);
   }
 
@@ -247,7 +258,11 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
   /**
    * Cache player data
    */
-  async cachePlayer(playerId: string, player: Player, ttlSeconds: number = 3600): Promise<boolean> {
+  async cachePlayer(
+    playerId: string,
+    player: Player,
+    ttlSeconds: number = 3600,
+  ): Promise<boolean> {
     return this.set(`player:${playerId}`, player, ttlSeconds);
   }
 
@@ -261,7 +276,12 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
   /**
    * Cache round data
    */
-  async cacheRound(gameId: string, round: number, roundData: any, ttlSeconds: number = 3600): Promise<boolean> {
+  async cacheRound(
+    gameId: string,
+    round: number,
+    roundData: any,
+    ttlSeconds: number = 3600,
+  ): Promise<boolean> {
     return this.set(`round:${gameId}:${round}`, roundData, ttlSeconds);
   }
 
@@ -277,7 +297,7 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
    */
   async invalidateGameCache(gameId: string): Promise<void> {
     if (!this.isAvailable()) return;
-    
+
     try {
       const keys = await this.keys(`*:${gameId}*`);
       if (keys.length > 0) {
@@ -293,7 +313,7 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
    */
   async publish(channel: string, message: any): Promise<number> {
     if (!this.isAvailable() || !this.publisher) return 0;
-    
+
     try {
       return await this.publisher.publish(channel, JSON.stringify(message));
     } catch (error) {
@@ -305,9 +325,12 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
   /**
    * Subscribe to a channel (for multi-instance deployments)
    */
-  async subscribe(channel: string, callback: (message: any) => void): Promise<void> {
+  async subscribe(
+    channel: string,
+    callback: (message: any) => void,
+  ): Promise<void> {
     if (!this.isAvailable() || !this.subscriber) return;
-    
+
     try {
       await this.subscriber.subscribe(channel);
       this.subscriber.on("message", (ch, msg) => {
@@ -315,7 +338,10 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
           try {
             callback(JSON.parse(msg));
           } catch (error) {
-            this.logger.error(`Error parsing message from channel ${channel}:`, error);
+            this.logger.error(
+              `Error parsing message from channel ${channel}:`,
+              error,
+            );
           }
         }
       });
@@ -324,4 +350,3 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     }
   }
 }
-
