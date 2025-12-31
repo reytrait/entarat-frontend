@@ -57,11 +57,11 @@ export default function LobbyPage() {
   };
 
   const handleStartGame = () => {
-    // Start game via WebSocket before navigating
+    // Start game via WebSocket proxy before navigating
     const wsUrl =
       typeof window !== "undefined"
-        ? `${window.location.protocol === "https:" ? "wss:" : "ws:"}//${window.location.host}/ws`
-        : "ws://localhost:3000/ws";
+        ? `${window.location.protocol === "https:" ? "wss:" : "ws:"}//${window.location.host}/api/ws`
+        : "ws://localhost:3000/api/ws";
 
     const ws = new WebSocket(wsUrl);
     ws.onopen = () => {

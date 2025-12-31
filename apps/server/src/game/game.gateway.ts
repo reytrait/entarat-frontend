@@ -1,5 +1,6 @@
 import { Injectable, type OnModuleInit } from "@nestjs/common";
-import type { Server, WebSocket } from "ws";
+import type { Server } from "ws";
+import { WebSocket } from "ws";
 import type { DatabaseService } from "../database/database.service";
 import type { JoinMessage } from "../types/game";
 import type { GameService } from "./game.service";
@@ -19,6 +20,7 @@ export class GameGateway implements OnModuleInit {
 
 	onModuleInit() {
 		// Server will be set externally via setServer method
+		console.log("✅ GameGateway initialized (waiting for server)");
 	}
 
 	setServer(server: Server) {
@@ -26,10 +28,27 @@ export class GameGateway implements OnModuleInit {
 		this.server.on("connection", (client: WebSocket) => {
 			this.handleConnection(client);
 		});
+		console.log("✅ WebSocket server attached to GameGateway");
 	}
 
 	private handleConnection(client: WebSocket) {
 		console.log("🔌 Client connected");
+
+		// Send connection confirmation with ID and timestamp
+		const connectionId = `conn_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+		const connectionMessage = JSON.stringify({
+			type: "socket_connected",
+			connectionId,
+			timestamp: Date.now(),
+		});
+
+		if (client.readyState === WebSocket.OPEN) {
+			client.send(connectionMessage);
+		} else {
+			client.once("open", () => {
+				client.send(connectionMessage);
+			});
+		}
 
 		client.on("message", (message: Buffer) => {
 			try {
