@@ -114,16 +114,7 @@ export class GameService {
       currentGame?.playerIds || [],
     );
 
-    // Send limited players list to the newly joined user
-    client.send(
-      JSON.stringify({
-        type: "players_list",
-        players: playersData.players,
-        totalPlayers: playersData.totalPlayers,
-      }),
-    );
-
-    // Notify all players in game (including the newly joined one)
+    // Notify all other players in game (excluding the newly joined one)
     this.broadcastToGame(
       gameId,
       {
@@ -133,9 +124,10 @@ export class GameService {
         totalPlayers: playersData.totalPlayers,
       },
       connections,
+      playerId, // Exclude the joining player
     );
 
-    // Send current game state to the newly joined user
+    // Send combined game state (includes players list) to the newly joined user
     if (currentGame) {
       // If game is finished and summary doesn't exist, generate it
       if (currentGame.status === "finished" && !currentGame.summary) {
@@ -550,11 +542,17 @@ export class GameService {
     gameId: string,
     message: object,
     connections: Map<string, WebSocket>,
+    excludePlayerId?: string,
   ) {
     const game = this.databaseService.games.get(gameId);
     if (!game) return;
 
     game.playerIds.forEach((playerId) => {
+      // Skip excluded player
+      if (excludePlayerId && playerId === excludePlayerId) {
+        return;
+      }
+
       const connection = connections.get(playerId);
       if (connection && connection.readyState === WebSocket.OPEN) {
         connection.send(JSON.stringify(message));
