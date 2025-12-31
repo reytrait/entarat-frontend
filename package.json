@@ -3,8 +3,6 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "install": "pnpm install --frozen-lockfile",
-    "install:all": "pnpm install",
     "install:web": "pnpm --filter @entarat/web install",
     "install:server": "pnpm --filter @entarat/server install",
     "dev": "pnpm --filter @entarat/web dev & pnpm --filter @entarat/server start:dev",
