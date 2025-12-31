@@ -32,8 +32,15 @@ export function useTriviaGame(gameId: string) {
   const wsRef = useRef<WebSocket | null>(null);
   const progressIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const requestResultsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const autoPlayTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const autoPlayRef = useRef(autoPlay);
   const hasJoinedRef = useRef(false);
   const isMountedRef = useRef(true);
+
+  // Keep autoPlayRef in sync with autoPlay state
+  useEffect(() => {
+    autoPlayRef.current = autoPlay;
+  }, [autoPlay]);
 
   useEffect(() => {
     isMountedRef.current = true;
@@ -357,6 +364,34 @@ export function useTriviaGame(gameId: string) {
             // Preserve selectedAnswer so it shows what was selected
             setGameState((prev) => {
               const isLastRound = roundResultsData.round >= prev.totalRounds;
+
+              // Auto-play: If enabled and not last round, automatically go to next round after 3 seconds
+              if (autoPlayRef.current && !isLastRound) {
+                // Clear any existing autoplay timeout
+                if (autoPlayTimeoutRef.current) {
+                  clearTimeout(autoPlayTimeoutRef.current);
+                }
+
+                // Set timeout to automatically go to next round after 3 seconds
+                autoPlayTimeoutRef.current = setTimeout(() => {
+                  if (
+                    wsRef.current?.readyState === WebSocket.OPEN &&
+                    isMountedRef.current
+                  ) {
+                    console.log(
+                      "🔄 Auto-play: Automatically advancing to next round",
+                    );
+                    wsRef.current.send(
+                      JSON.stringify({
+                        type: "next_round",
+                        gameId: gameId,
+                      }),
+                    );
+                  }
+                  autoPlayTimeoutRef.current = null;
+                }, 3000); // 3 seconds delay
+              }
+
               return {
                 ...prev,
                 showResults: true,
@@ -483,6 +518,12 @@ export function useTriviaGame(gameId: string) {
       if (requestResultsTimeoutRef.current) {
         clearTimeout(requestResultsTimeoutRef.current);
         requestResultsTimeoutRef.current = null;
+      }
+
+      // Clear autoplay timeout
+      if (autoPlayTimeoutRef.current) {
+        clearTimeout(autoPlayTimeoutRef.current);
+        autoPlayTimeoutRef.current = null;
       }
 
       // In React Strict Mode, cleanup runs immediately before re-mount

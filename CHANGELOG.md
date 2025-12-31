@@ -2,6 +2,69 @@
 
 This document tracks all major changes and features implemented in the Entarat trivia game application.
 
+All changes are listed with timestamps in reverse chronological order (newest first).
+
+---
+
+## [2025-12-31] Auto-Play Feature & Game Summary
+
+### Auto-Play Feature
+- **Automatic round progression**: When autoplay is toggled on, rounds automatically advance after 3 seconds
+- **No manual interaction needed**: Eliminates need to click "Next Round" button when autoplay is enabled
+- **Smart timing**: Waits 3 seconds after round results are shown before advancing
+- **Last round protection**: Auto-play does not trigger on the final round (game finished)
+- **Toggle control**: Users can still toggle autoplay on/off at any time
+- **Cleanup handling**: Auto-play timeouts are properly cleared on component unmount and when next round starts
+
+### Game Summary Feature
+- **Complete game summary**: When game status is `"finished"`, server generates comprehensive summary object
+- **Summary includes**:
+  - All questions asked with correct answers
+  - Player statistics (total score, questions passed, questions failed)
+  - Detailed answer breakdown per player per round
+- **Summary page**: New frontend page displays complete game breakdown
+  - Player statistics with winner highlighting
+  - Questions breakdown showing all options with correct answer highlighted
+  - Player answers for each question with correct/incorrect indicators
+  - Visual indicators (green for correct, red for incorrect)
+- **Round history tracking**: Server tracks all rounds with questions and player answers
+- **Automatic summary generation**: Summary is automatically created when game completes
+
+### Database Expansion
+- **Expanded question database**: Increased from 3 to 30 questions
+- **Diverse categories**: Questions span Science, Geography, Art, History, Literature, Sports, Math, Food, Entertainment
+- **All questions include**: Image URLs, 4 answer options, correct answer index, category
+
+### Game Completion Improvements
+- **Automatic completion tracking**: Server automatically detects when all rounds are complete
+- **Immediate result sending**: Final results sent to all users immediately when game finishes
+- **Completion detection**: Works for both timer expiration and early completion scenarios
+
+### Technical Changes
+
+**Server-Side:**
+- Added `RoundData` type to track round questions and answers
+- Added `GameSummary` type with questions and player statistics
+- Updated `Game` type to include `roundHistory: RoundData[]` and `summary?: GameSummary`
+- Added `generateGameSummary()` function to create summary from round history
+- Updated `checkAndCompleteGame()` to generate and send summary
+- Updated `submit_answer` handler to save round data to history
+- Updated `round-timer.ts` to save round history and generate summary
+- Initialize `roundHistory: []` when creating new games
+
+**Client-Side:**
+- Added `GameSummary` type matching server structure
+- Added `summary?: GameSummary` to `GameState`
+- Created `GameSummary.tsx` component for detailed game breakdown display
+- Updated `useTriviaGame.ts` to handle summary in `game_finished` message
+- Updated `index.tsx` to show `GameSummary` component when summary is available
+- Added auto-play functionality with 3-second delay after round results
+- Added `autoPlayTimeoutRef` to track auto-play timeout
+- Added `autoPlayRef` to track current autoplay state without dependency issues
+- Auto-play automatically sends `next_round` event when enabled and round results received
+
+---
+
 ## Game Features & Improvements
 
 ### Round Timer & Countdown
@@ -51,6 +114,9 @@ This document tracks all major changes and features implemented in the Entarat t
   - `startRoundTimer()`: Starts timer that automatically sends results when round expires
   - `stopRoundTimer()`: Stops timer when all players answer early
   - `getRoundResults()`: Returns round results on demand for client requests
+  - Saves round data to history when timer expires (2025-12-31)
+  - Generates summary when last round expires (2025-12-31)
+  - Includes summary in `game_finished` message (2025-12-31)
 
 #### Modified Files
 
@@ -58,6 +124,9 @@ This document tracks all major changes and features implemented in the Entarat t
 - Added `usedQuestionIds: number[]` to `Game` type to track used questions
 - Added `roundDuration: number` to track round duration
 - Added `RequestRoundResultsMessage` type for client result requests
+- Added `RoundData` type to track round questions and player answers
+- Added `GameSummary` type with questions and player statistics
+- Updated `Game` type to include `roundHistory: RoundData[]` and `summary?: GameSummary`
 
 **`server/websocket.ts`**
 - Implemented question randomization on `start_game` and `next_round`
@@ -70,10 +139,15 @@ This document tracks all major changes and features implemented in the Entarat t
 - Sanitizes questions (removes `correctAnswer`) before sending to clients
 - Stops round timer when all players answer early
 - Handles last round expiration by sending `game_finished` instead of `round_results`
+- Added `generateGameSummary()` function to create summary from round history
+- Updated `checkAndCompleteGame()` to generate and send summary with final scores
+- Updated `submit_answer` handler to save round data to `roundHistory`
+- Initialize `roundHistory: []` when creating new games
 
 **`server/db.ts`**
-- Contains question database (currently 3 sample questions)
+- Contains question database (30 questions as of 2025-12-31)
 - Questions include: id, question text, image path, options array, correctAnswer index, category
+- All questions include image URLs from Wikimedia Commons
 
 ### Client-Side Changes
 
@@ -84,22 +158,27 @@ This document tracks all major changes and features implemented in the Entarat t
 - Added `finalScores?: Array<{player: Player | undefined; score: number}>`
 - Added `timeExpired?: boolean` to track time expiration
 - Made `correctAnswer` optional in `Question` type (not sent from server until results)
+- Added `GameSummary` type matching server structure
+- Added `summary?: GameSummary` to `GameState`
 
 **`src/app/game/games/TriviaGame1/useTriviaGame.ts`**
 - Added `remainingTime` state to track countdown in seconds
 - Updated `startProgressTimer()` to calculate and update remaining time
 - Added time expiration detection and handling
 - Updated `handleAnswerSelect()` to prevent selection when time expired
-- Added `game_finished` handler to store final scores
+- Added `game_finished` handler to store final scores and summary
 - Updated `round_results` handler to detect last round
 - Added automatic result request mechanism (requests results if not received within 1 second)
 - Handles last round expiration on resume by waiting for `game_finished` message
 - Cleans up result request timeouts when results arrive
+- Handles `summary` in `game_finished` message and stores in game state
 
 **`src/app/game/games/TriviaGame1/index.tsx`**
 - Added `GameFinished` component rendering when game is complete
 - Passes `remainingTime` to `GameArea` component
 - Shows loading state when waiting for final scores on last round expiration
+- Shows `GameSummary` component when summary is available
+- Falls back to `GameFinished` if summary not available
 
 **`src/app/game/games/TriviaGame1/GameArea.tsx`**
 - Added countdown timer display with "Time's Up!" message
@@ -117,6 +196,19 @@ This document tracks all major changes and features implemented in the Entarat t
 - Shows winner with trophy icon
 - Sorts players by score (descending)
 - Displays player avatars and names
+- Added "Start New Game" button to navigate to game selection (2025-12-31)
+- Added "Go Home" button to navigate to homepage (2025-12-31)
+
+**`src/app/game/games/TriviaGame1/GameSummary.tsx`** (New - 2025-12-31)
+- Displays comprehensive game summary with all questions and player performance
+- Shows player statistics with scores, questions passed/failed counts
+- Displays all questions with:
+  - Question text, image, category
+  - All options with correct answer highlighted in green
+  - Each player's answer for each question
+  - Correct/incorrect indicators per player
+- Winner highlighting with trophy icon
+- "Play Again" and "Go Home" navigation buttons
 
 ### Constants & Configuration
 
@@ -191,12 +283,19 @@ This document tracks all major changes and features implemented in the Entarat t
 
 ## Database Structure
 
-Current questions in `server/db.ts`:
-1. Science: "Which planet is known as the Red Planet?" (Mars)
-2. Geography: "What is the largest ocean on Earth?" (Pacific)
-3. Art: "Who painted the Mona Lisa?" (Da Vinci)
+Current questions in `server/db.ts`: **30 questions** across multiple categories
+- **Science** (9 questions): Planets, chemistry, physics, biology, animals
+- **Geography** (8 questions): Countries, capitals, oceans, rivers, deserts
+- **Art** (2 questions): Famous paintings and artists
+- **History** (2 questions): World War II, inventions
+- **Literature** (1 question): Shakespeare
+- **Sports** (1 question): Basketball
+- **Math** (2 questions): Geometry, prime numbers
+- **Food** (1 question): Guacamole
+- **Entertainment** (1 question): Academy Awards
+- **Other** (3 questions): Mixed topics
 
-**Note**: The game automatically limits rounds to the number of available questions (currently 3).
+**Note**: The game automatically limits rounds to the number of available questions (currently 30).
 
 ## Future Improvements
 
