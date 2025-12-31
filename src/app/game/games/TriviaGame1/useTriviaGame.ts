@@ -231,7 +231,7 @@ export function useTriviaGame(gameId: string) {
 
             // If game is finished, set finished state and summary
             const isFinished = gameStateData.game.status === "finished";
-            
+
             setGameState((prev) => ({
               ...prev,
               players: gameStateData.game.players || [],

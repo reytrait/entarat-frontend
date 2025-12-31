@@ -7,12 +7,7 @@ import {
   startRoundTimer,
   stopRoundTimer,
 } from "./round-timer";
-import type {
-  Game,
-  GameSummary,
-  JoinMessage,
-  WebSocketMessage,
-} from "./types";
+import type { Game, GameSummary, JoinMessage, WebSocketMessage } from "./types";
 import {
   getUnusedQuestion,
   randomizeQuestionOptions,
