@@ -128,7 +128,7 @@ export default function GameSetupPage() {
 
   return (
     <PlayFullBgSection>
-      <div className="container mx-auto max-md:px-4 px-6 md:px-12  w-dvw overflow-x-hidden relative z-2">
+      <div className="relative z-5 container mx-auto max-md:px-4 px-6 md:px-12  w-dvw overflow-x-hidden">
         <HeroHeader />
 
         <div className="py-8 flex justify-center">

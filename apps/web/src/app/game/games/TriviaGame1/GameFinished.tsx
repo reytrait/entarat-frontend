@@ -26,7 +26,7 @@ export function GameFinished({ gameState }: GameFinishedProps) {
   };
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center p-4">
+    <div className="relative z-5  flex min-h-screen flex-col items-center justify-center p-4">
       <div className="w-full max-w-2xl">
         {/* Header */}
         <div className="mb-8 text-center">

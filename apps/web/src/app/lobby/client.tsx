@@ -80,7 +80,7 @@ export default function LobbyPage() {
 
   return (
     <PlayFullBgSection>
-      <div className="min-h-screen">
+      <div className="relative z-5 min-h-screen">
         <div className="container mx-auto max-md:px-4 px-6 md:px-12">
           <HeroHeader />
         </div>

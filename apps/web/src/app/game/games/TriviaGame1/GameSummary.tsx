@@ -14,7 +14,7 @@ export function GameSummary({ summary }: GameSummaryProps) {
   const router = useRouter();
 
   return (
-    <div className="flex min-h-screen flex-col items-center p-4 md:p-8">
+    <div className="relative z-5 flex min-h-screen flex-col items-center p-4 md:p-8">
       <div className="w-full max-w-6xl space-y-8">
         {/* Header */}
         <div className="mb-8 text-center">

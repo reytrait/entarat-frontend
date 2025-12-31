@@ -31,7 +31,7 @@ export function TriviaGame({ gameId }: TriviaGameProps) {
   if (connectionError) {
     return (
       <PlayFullBgSection>
-        <div className="flex min-h-screen items-center justify-center">
+        <div className="relative z-5 flex min-h-screen items-center justify-center">
           <div className="text-center">
             <Text variant="h2" textColor="white" className="mb-4">
               Connection Error
@@ -77,7 +77,7 @@ export function TriviaGame({ gameId }: TriviaGameProps) {
       // Waiting for final scores from server
       return (
         <PlayFullBgSection>
-          <div className="flex min-h-screen items-center justify-center">
+          <div className="relative z-5 flex min-h-screen items-center justify-center">
             <div className="text-center">
               <Text variant="h2" textColor="white" className="mb-4">
                 Game Ended
@@ -94,7 +94,7 @@ export function TriviaGame({ gameId }: TriviaGameProps) {
 
   return (
     <PlayFullBgSection>
-      <div className="min-h-screen bg-gradient-to-r from-orange-500/20 via-purple-500/20 to-purple-900/40 p-4 md:p-8">
+      <div className="relative z-5 min-h-screen bg-gradient-to-r from-orange-500/20 via-purple-500/20 to-purple-900/40 p-4 md:p-8">
         <div className="container mx-auto grid grid-cols-1 gap-6 lg:grid-cols-4">
           <GameArea
             gameState={gameState}
