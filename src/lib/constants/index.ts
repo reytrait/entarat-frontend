@@ -1,12 +1,41 @@
 // Site-wide constants and content
 // Update content here to easily manage all text across the application
 
+// temporary
+export const TEMP_PAGES_CREATED = [
+  {
+    path: "/",
+    title: "Home",
+  },
+  {
+    path: "/game-review",
+    title: "Game Preview",
+  },
+  {
+    path: "/game-setup",
+    title: "Game Setup",
+  },
+  {
+    path: "/join-game",
+    title: "Join Game",
+  },
+  {
+    path: "/lobby",
+    title: "Lobby",
+  },
+  {
+    path: "/game",
+    title: "Game Start",
+  },
+];
+
 export const HIDDEN_FOOTER_PAGES = [
   "/game-setup",
   "/login",
   "/register",
   "/join-game",
   "/lobby",
+  "/game",
 ];
 
 export const SITE_CONFIG = {
@@ -14,6 +43,7 @@ export const SITE_CONFIG = {
   logo: {
     light: "/assets/logo/entarat-logo__black.svg",
     dark: "/assets/logo/entarat-logo__white.svg",
+    noText_white: "/assets/logo/entarat-logo__white-no-text.svg",
     alt: "Entarat Logo",
     text: "Entarat",
   },

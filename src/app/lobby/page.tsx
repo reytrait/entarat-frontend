@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { QRCodeSVG } from "qrcode.react";
 import { useEffect, useState } from "react";
 import HeroHeader from "@/app/components/HeroHeader";
@@ -22,6 +22,7 @@ const MOCK_PLAYERS = [
 ];
 
 export default function LobbyPage() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const gameId = searchParams.get("gameId") || "trivia-1";
   const [gameCode, setGameCode] = useState<string>("");
@@ -56,8 +57,8 @@ export default function LobbyPage() {
   };
 
   const handleStartGame = () => {
-    // TODO: Implement start game logic
-    console.log("Starting game:", { gameId, gameCode });
+    // Navigate directly to game page (it will show the loader first)
+    router.push(`/game?gameId=${gameId}`);
   };
 
   // QR code data - only use shareLink after mount to avoid hydration mismatch

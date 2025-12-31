@@ -5,7 +5,12 @@ import { usePathname, useRouter } from "next/navigation";
 import { useTheme } from "@/components/theme-provider";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { EntaratBtn } from "@/components/ui/entarat-btn";
-import { HERO, NAVIGATION, SITE_CONFIG } from "@/lib/constants";
+import {
+  HERO,
+  NAVIGATION,
+  SITE_CONFIG,
+  TEMP_PAGES_CREATED,
+} from "@/lib/constants";
 
 const HeroHeader = () => {
   const router = useRouter();
@@ -21,28 +26,6 @@ const HeroHeader = () => {
   const removeNavs = REMOVE_NAVS.some((page) => pathname?.startsWith(page));
 
   const { dark, light } = SITE_CONFIG.logo;
-  const tempPages = [
-    {
-      path: "/",
-      title: "Home",
-    },
-    {
-      path: "/game-review",
-      title: "Game Preview",
-    },
-    {
-      path: "/game-setup",
-      title: "Game Setup",
-    },
-    {
-      path: "/join-game",
-      title: "Join Game",
-    },
-    {
-      path: "/lobby",
-      title: "Lobby",
-    },
-  ];
 
   const handleCreateGame = () => {
     router.push("/game-setup");
@@ -51,9 +34,9 @@ const HeroHeader = () => {
     //   {/* Header */}
     // <header className="bg-main-bg">
     <header>
-      {tempPages && (
+      {TEMP_PAGES_CREATED && (
         <div className="fixed top-0 right-0 bg-red-950-200 z-99 flex gap-2">
-          {tempPages.map((page) => (
+          {TEMP_PAGES_CREATED.map((page) => (
             <Link
               key={page.path}
               href={page.path}
