@@ -47,7 +47,7 @@ export default function GameStartPage() {
 
   return (
     <PlayFullBgSection>
-      <div className="relative z-10 flex min-h-screen flex-col items-center justify-center">
+      <div className="relative z-5 flex min-h-screen flex-col items-center justify-center">
         <div
           className={`flex flex-col items-center gap-6 transition-opacity duration-500 ${
             isFading ? "opacity-0" : "opacity-100"

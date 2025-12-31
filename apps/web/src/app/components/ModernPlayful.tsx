@@ -36,7 +36,7 @@ export function ModernPlayful() {
       />
 
       {/* Content */}
-      <div className="relative z-10 mx-auto container max-md:px-4 text-center md:px-12">
+      <div className="relative z-5 mx-auto container max-md:px-4 text-center md:px-12">
         {/* Headline */}
         <Text variant="h2" textColor="white" align="center" className="mb-8">
           {MODERN_PLAYFUL.title}

@@ -7,7 +7,7 @@ export function WhyEntarat() {
       id="features"
       className="relative w-full overflow-hidden z-2 py-10 md:py-20"
     >
-      <div className="relative z-10 mx-auto max-w-7xl self-center container">
+      <div className="relative z-5 mx-auto max-w-7xl self-center container">
         <Text variant="h2" textColor="default" align="center" className="mb-12">
           {WHY_ENTARACT.title}
         </Text>

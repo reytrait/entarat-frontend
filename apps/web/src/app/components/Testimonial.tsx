@@ -21,7 +21,7 @@ export function Testimonial() {
       <Ellipse type="3" size="80vw" position={{ y: "0%", x: "90%" }} center />
 
       {/* Content */}
-      <div className="relative z-10 mx-auto container max-md:px-4 text-center md:px-12">
+      <div className="relative z-5 mx-auto container max-md:px-4 text-center md:px-12">
         {/* Title */}
         <Text variant="h2" textColor="white" align="center" className="mb-12">
           {TESTIMONIALS.title}

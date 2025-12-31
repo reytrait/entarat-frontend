@@ -17,7 +17,7 @@ export default function NotFound() {
 
   return (
     <PlayFullBgSection>
-      <div className="relative z-10 flex min-h-screen flex-col items-center justify-center px-4 text-center">
+      <div className="relative z-5 flex min-h-screen flex-col items-center justify-center px-4 text-center">
         <div className="space-y-6">
           <Text variant="h1" textColor="white" align="center">
             404

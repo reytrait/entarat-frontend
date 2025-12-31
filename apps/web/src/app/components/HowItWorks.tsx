@@ -23,7 +23,7 @@ function HowItWorksPink() {
       />
 
       {/* Content */}
-      <div className="relative z-10 mx-auto max-w-7xl px-6 md:px-12">
+      <div className="relative z-5 mx-auto max-w-7xl px-6 md:px-12">
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-2 lg:gap-16">
           {/* Left Side - Images */}
           <div className="relative flex flex-col gap-6 lg:block lg:h-full">
@@ -109,7 +109,7 @@ export function HowItWorks() {
         />
 
         {/* Content */}
-        <div className="relative z-10 mx-auto max-w-7xl px-6 md:px-12">
+        <div className="relative z-5 mx-auto max-w-7xl px-6 md:px-12">
           <div className="grid grid-cols-1 gap-12 lg:grid-cols-2 lg:gap-16">
             {/* Left Side - Title and Philosophy */}
             <div className="flex flex-col justify-center">

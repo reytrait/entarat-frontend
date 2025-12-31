@@ -85,7 +85,7 @@ export default function LobbyPage() {
           <HeroHeader />
         </div>
 
-        <div className="relative z-10 flex min-h-[calc(100vh-120px)] items-center justify-center px-4 py-12">
+        <div className="relative z-5 flex min-h-[calc(100vh-120px)] items-center justify-center px-4 py-12">
           <div
             className="w-full max-w-4xl rounded-2xl p-[2px]"
             style={{
