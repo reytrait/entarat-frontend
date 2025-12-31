@@ -3,7 +3,6 @@
     "framework": "nextjs",
     "installCommand": "npm run install:web",
     "buildCommand": "npm run build:web",
-    "rootDirectory": "apps/web",
     "outputDirectory": ".next"
   }
   
