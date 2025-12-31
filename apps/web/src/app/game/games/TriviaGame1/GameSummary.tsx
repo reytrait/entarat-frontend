@@ -2,8 +2,8 @@
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Text } from "@/components/ui/text";
-import { EntaratBtn } from "@/components/ui/entarat-btn";
+import { EntaratBtn } from "../../../../components/ui/entarat-btn";
+import { Text } from "../../../../components/ui/text";
 import type { GameSummary as GameSummaryType } from "./types";
 
 type GameSummaryProps = {
@@ -80,9 +80,14 @@ export function GameSummary({ summary }: GameSummaryProps) {
                         >
                           {stat.player?.name || "Unknown Player"}
                         </Text>
-                        <Text variant="small" textColor="white" className="opacity-60">
-                          Score: {stat.totalScore} | Passed: {stat.questionsPassed} |
-                          Failed: {stat.questionsFailed}
+                        <Text
+                          variant="small"
+                          textColor="white"
+                          className="opacity-60"
+                        >
+                          Score: {stat.totalScore} | Passed:{" "}
+                          {stat.questionsPassed} | Failed:{" "}
+                          {stat.questionsFailed}
                         </Text>
                       </div>
                     </div>
@@ -94,7 +99,11 @@ export function GameSummary({ summary }: GameSummaryProps) {
                       >
                         {stat.totalScore}
                       </Text>
-                      <Text variant="small" textColor="white" className="opacity-60">
+                      <Text
+                        variant="small"
+                        textColor="white"
+                        className="opacity-60"
+                      >
                         points
                       </Text>
                     </div>
@@ -126,7 +135,11 @@ export function GameSummary({ summary }: GameSummaryProps) {
                     <Text variant="h4" textColor="white" className="mb-2">
                       Round {q.round}: {q.question.question}
                     </Text>
-                    <Text variant="small" textColor="white" className="opacity-60">
+                    <Text
+                      variant="small"
+                      textColor="white"
+                      className="opacity-60"
+                    >
                       Category: {q.question.category}
                     </Text>
                   </div>
@@ -146,7 +159,11 @@ export function GameSummary({ summary }: GameSummaryProps) {
                   )}
 
                   <div className="mb-4">
-                    <Text variant="body" textColor="white" className="mb-2 font-semibold">
+                    <Text
+                      variant="body"
+                      textColor="white"
+                      className="mb-2 font-semibold"
+                    >
                       Options:
                     </Text>
                     <div className="grid grid-cols-2 gap-2">
@@ -177,12 +194,18 @@ export function GameSummary({ summary }: GameSummaryProps) {
 
                   {/* Player Answers */}
                   <div>
-                    <Text variant="body" textColor="white" className="mb-2 font-semibold">
+                    <Text
+                      variant="body"
+                      textColor="white"
+                      className="mb-2 font-semibold"
+                    >
                       Player Answers:
                     </Text>
                     <div className="space-y-2">
                       {summary.playerStats.map((stat) => {
-                        const answer = stat.answers.find((a) => a.round === q.round);
+                        const answer = stat.answers.find(
+                          (a) => a.round === q.round,
+                        );
                         const selectedOption =
                           answer && answer.answer >= 0
                             ? q.question.options[answer.answer]
@@ -207,7 +230,8 @@ export function GameSummary({ summary }: GameSummaryProps) {
                                 </div>
                               )}
                               <Text variant="small" textColor="white">
-                                {stat.player?.name || "Unknown"}: {selectedOption}
+                                {stat.player?.name || "Unknown"}:{" "}
+                                {selectedOption}
                               </Text>
                             </div>
                             <Text
@@ -249,4 +273,3 @@ export function GameSummary({ summary }: GameSummaryProps) {
     </div>
   );
 }
-

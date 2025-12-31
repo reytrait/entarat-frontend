@@ -1,6 +1,6 @@
-import { EntaratBtn } from "@/components/ui/entarat-btn";
-import { Text } from "@/components/ui/text";
-import { HERO, MODERN_PLAYFUL } from "@/lib/constants";
+import { EntaratBtn } from "../../components/ui/entarat-btn";
+import { Text } from "../../components/ui/text";
+import { HERO, MODERN_PLAYFUL } from "../../lib/constants";
 
 export function ModernPlayful() {
   return (

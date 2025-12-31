@@ -2,15 +2,15 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useTheme } from "@/components/theme-provider";
-import { ThemeToggle } from "@/components/theme-toggle";
-import { EntaratBtn } from "@/components/ui/entarat-btn";
+import { useTheme } from "../../components/theme-provider";
+import { ThemeToggle } from "../../components/theme-toggle";
+import { EntaratBtn } from "../../components/ui/entarat-btn";
 import {
   HERO,
   NAVIGATION,
   SITE_CONFIG,
   TEMP_PAGES_CREATED,
-} from "@/lib/constants";
+} from "../../lib/constants";
 
 const HeroHeader = () => {
   const router = useRouter();

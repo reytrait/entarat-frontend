@@ -1,5 +1,5 @@
-import PlayFullBgSection from "@/app/components/PlayFullBgSection";
-import { Text } from "@/components/ui/text";
+import { Text } from "../../../components/ui/text";
+import PlayFullBgSection from "../../components/PlayFullBgSection";
 
 const GameComingSoon = ({ gameId }: { gameId: string }) => {
   return (

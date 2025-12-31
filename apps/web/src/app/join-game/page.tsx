@@ -2,12 +2,12 @@
 
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
-import HeroHeader from "@/app/components/HeroHeader";
-import PlayFullBgSection from "@/app/components/PlayFullBgSection";
-import { EntaratBtn } from "@/components/ui/entarat-btn";
-import { Input } from "@/components/ui/input";
-import { Text } from "@/components/ui/text";
-import { useUser } from "@/components/user-provider";
+import { EntaratBtn } from "../../components/ui/entarat-btn";
+import { Input } from "../../components/ui/input";
+import { Text } from "../../components/ui/text";
+import { useUser } from "../../components/user-provider";
+import HeroHeader from "../components/HeroHeader";
+import PlayFullBgSection from "../components/PlayFullBgSection";
 
 // List of 24 avatars for the selection grid
 const AVATARS = [

@@ -1,4 +1,4 @@
-import { Ellipse } from "@/components/ui/ellipse";
+import { Ellipse } from "../../components/ui/ellipse";
 import { Hero } from "./Hero";
 import { WhyEntarat } from "./WhyEntarat";
 

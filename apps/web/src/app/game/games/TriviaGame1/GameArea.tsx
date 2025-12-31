@@ -1,8 +1,8 @@
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { EntaratBtn } from "@/components/ui/entarat-btn";
-import { Text } from "@/components/ui/text";
-import { SITE_CONFIG } from "@/lib/constants";
+import { EntaratBtn } from "../../../../components/ui/entarat-btn";
+import { Text } from "../../../../components/ui/text";
+import { SITE_CONFIG } from "../../../../lib/constants";
 import { AnswerButton } from "./AnswerButton";
 import type { GameState } from "./types";
 

@@ -3,9 +3,9 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import HeroHeader from "@/app/components/HeroHeader";
-import { Text } from "@/components/ui/text";
-import { GAMES } from "@/lib/constants/game_reviews";
+import { Text } from "../../components/ui/text";
+import { GAMES } from "../../lib/constants/game_reviews";
+import HeroHeader from "../components/HeroHeader";
 
 export default function GameReviewPage() {
   const router = useRouter();

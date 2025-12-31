@@ -5,10 +5,9 @@ import { useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import HeroHeader from "@/app/components/HeroHeader";
-import { useGameSetup } from "@/components/game-setup-provider";
-import { Ellipse } from "@/components/ui/ellipse";
-import { EntaratBtn } from "@/components/ui/entarat-btn";
+import { useGameSetup } from "../../components/game-setup-provider";
+import { Ellipse } from "../../components/ui/ellipse";
+import { EntaratBtn } from "../../components/ui/entarat-btn";
 import {
   Form,
   FormControl,
@@ -16,10 +15,11 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Text } from "@/components/ui/text";
-import { GAMES } from "@/lib/constants/game_reviews";
+} from "../../components/ui/form";
+import { Input } from "../../components/ui/input";
+import { Text } from "../../components/ui/text";
+import { GAMES } from "../../lib/constants/game_reviews";
+import HeroHeader from "../components/HeroHeader";
 import PlayFullBgSection from "../components/PlayFullBgSection";
 
 const gameSetupSchema = z.object({

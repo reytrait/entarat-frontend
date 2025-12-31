@@ -1,8 +1,8 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Text } from "@/components/ui/text";
-import { EntaratBtn } from "@/components/ui/entarat-btn";
-import { SITE_CONFIG } from "@/lib/constants";
+import { EntaratBtn } from "../../../../components/ui/entarat-btn";
+import { Text } from "../../../../components/ui/text";
+import { SITE_CONFIG } from "../../../../lib/constants";
 import type { GameState } from "./types";
 
 type GameFinishedProps = {
@@ -11,7 +11,7 @@ type GameFinishedProps = {
 
 export function GameFinished({ gameState }: GameFinishedProps) {
   const router = useRouter();
-  
+
   // Sort scores in descending order
   const sortedScores = [...(gameState.finalScores || [])].sort(
     (a, b) => b.score - a.score,
@@ -56,7 +56,7 @@ export function GameFinished({ gameState }: GameFinishedProps) {
             {sortedScores.map((scoreEntry, index) => {
               const player = scoreEntry.player;
               const isWinner = index === 0 && sortedScores.length > 0;
-              
+
               return (
                 <div
                   key={player?.id || `player-${index}`}
@@ -98,7 +98,11 @@ export function GameFinished({ gameState }: GameFinishedProps) {
                         {player?.name || "Unknown Player"}
                       </Text>
                       {player?.id && (
-                        <Text variant="small" textColor="white" className="opacity-60">
+                        <Text
+                          variant="small"
+                          textColor="white"
+                          className="opacity-60"
+                        >
                           ID: {player.id.substring(0, 8)}...
                         </Text>
                       )}
@@ -112,7 +116,11 @@ export function GameFinished({ gameState }: GameFinishedProps) {
                     >
                       {scoreEntry.score}
                     </Text>
-                    <Text variant="small" textColor="white" className="opacity-60">
+                    <Text
+                      variant="small"
+                      textColor="white"
+                      className="opacity-60"
+                    >
                       points
                     </Text>
                   </div>
@@ -131,11 +139,7 @@ export function GameFinished({ gameState }: GameFinishedProps) {
 
         {/* Action Buttons */}
         <div className="flex justify-center gap-4">
-          <EntaratBtn
-            variant="primary"
-            size="lg"
-            onClick={handleStartNewGame}
-          >
+          <EntaratBtn variant="primary" size="lg" onClick={handleStartNewGame}>
             <svg
               className="h-5 w-5"
               fill="none"
@@ -153,11 +157,7 @@ export function GameFinished({ gameState }: GameFinishedProps) {
             </svg>
             Start New Game
           </EntaratBtn>
-          <EntaratBtn
-            variant="secondary"
-            size="lg"
-            onClick={handleGoHome}
-          >
+          <EntaratBtn variant="secondary" size="lg" onClick={handleGoHome}>
             <svg
               className="h-5 w-5"
               fill="none"
@@ -180,4 +180,3 @@ export function GameFinished({ gameState }: GameFinishedProps) {
     </div>
   );
 }
-

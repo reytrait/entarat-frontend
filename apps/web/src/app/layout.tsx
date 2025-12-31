@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { Baloo_2 } from "next/font/google";
-import { ConditionalFooter } from "@/components/conditional-footer";
-import { GameSetupProvider } from "@/components/game-setup-provider";
-import { ThemeProvider } from "@/components/theme-provider";
-import { UserProvider } from "@/components/user-provider";
+import { ConditionalFooter } from "../components/conditional-footer";
+import { GameSetupProvider } from "../components/game-setup-provider";
+import { ThemeProvider } from "../components/theme-provider";
+import { UserProvider } from "../components/user-provider";
 import { ThemeScript } from "./theme-script";
 import "./globals.css";
 

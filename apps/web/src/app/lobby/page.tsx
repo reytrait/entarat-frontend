@@ -4,13 +4,13 @@ import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { QRCodeSVG } from "qrcode.react";
 import { useEffect, useState } from "react";
-import HeroHeader from "@/app/components/HeroHeader";
-import PlayFullBgSection from "@/app/components/PlayFullBgSection";
-import { EntaratBtn } from "@/components/ui/entarat-btn";
-import { Input } from "@/components/ui/input";
-import { Text } from "@/components/ui/text";
-import { useUser } from "@/components/user-provider";
-import { generateGameCode } from "@/lib/utils";
+import { EntaratBtn } from "../../components/ui/entarat-btn";
+import { Input } from "../../components/ui/input";
+import { Text } from "../../components/ui/text";
+import { useUser } from "../../components/user-provider";
+import { generateGameCode } from "../../lib/utils";
+import HeroHeader from "../components/HeroHeader";
+import PlayFullBgSection from "../components/PlayFullBgSection";
 
 // Mock players data - in real app, this would come from a backend/context
 const MOCK_PLAYERS = [
@@ -57,13 +57,11 @@ export default function LobbyPage() {
   };
 
   const handleStartGame = () => {
-          // Start game via WebSocket before navigating
-          // Use environment variable for WebSocket URL, fallback to current host
-          const wsUrl =
-            typeof window !== "undefined"
-              ? process.env.NEXT_PUBLIC_WS_URL ||
-                `${window.location.protocol === "https:" ? "wss:" : "ws:"}//${window.location.host}/ws`
-              : process.env.NEXT_PUBLIC_WS_URL || "ws://localhost:3001/ws";
+    // Start game via WebSocket before navigating
+    const wsUrl =
+      typeof window !== "undefined"
+        ? `${window.location.protocol === "https:" ? "wss:" : "ws:"}//${window.location.host}/ws`
+        : "ws://localhost:3000/ws";
 
     const ws = new WebSocket(wsUrl);
     ws.onopen = () => {

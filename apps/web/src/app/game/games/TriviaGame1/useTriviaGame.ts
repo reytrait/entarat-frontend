@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from "react";
-import { useUser } from "@/components/user-provider";
+import { useUser } from "../../../../components/user-provider";
 import {
   PROGRESS_UPDATE_INTERVAL_MS,
   ROUND_DURATION_MS,
-} from "@/lib/constants/game";
-import { getDeviceId, getPlayerId } from "@/lib/utils";
+} from "../../../../lib/constants/game";
+import { getDeviceId, getPlayerId } from "../../../../lib/utils";
 import type { GameState, GameSummary, Player, Question } from "./types";
 
 const QUESTION_DURATION = ROUND_DURATION_MS;
@@ -155,12 +155,10 @@ export function useTriviaGame(gameId: string) {
     }
 
     // Connect to WebSocket
-    // Use environment variable for WebSocket URL, fallback to current host
     const wsUrl =
       typeof window !== "undefined"
-        ? process.env.NEXT_PUBLIC_WS_URL ||
-          `${window.location.protocol === "https:" ? "wss:" : "ws:"}//${window.location.host}/ws`
-        : process.env.NEXT_PUBLIC_WS_URL || "ws://localhost:3001/ws";
+        ? `${window.location.protocol === "https:" ? "wss:" : "ws:"}//${window.location.host}/ws`
+        : "ws://localhost:3000/ws";
 
     let ws: WebSocket;
     try {

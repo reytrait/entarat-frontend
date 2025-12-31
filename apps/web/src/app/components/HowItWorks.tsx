@@ -1,8 +1,8 @@
 import Image from "next/image";
-import { Ellipse } from "@/components/ui/ellipse";
-import { EntaratBtn } from "@/components/ui/entarat-btn";
-import { Text } from "@/components/ui/text";
-import { HERO, HOW_IT_WORKS } from "@/lib/constants";
+import { Ellipse } from "../../components/ui/ellipse";
+import { EntaratBtn } from "../../components/ui/entarat-btn";
+import { Text } from "../../components/ui/text";
+import { HERO, HOW_IT_WORKS } from "../../lib/constants";
 
 function HowItWorksPink() {
   return (

@@ -1,5 +1,5 @@
-import { Text } from "@/components/ui/text";
-import { WHY_ENTARACT } from "@/lib/constants";
+import { Text } from "../../components/ui/text";
+import { WHY_ENTARACT } from "../../lib/constants";
 
 export function WhyEntarat() {
   return (

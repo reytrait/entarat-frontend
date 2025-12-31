@@ -2,8 +2,8 @@
 
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Footer } from "@/app/components/Footer";
-import { HIDDEN_FOOTER_PAGES } from "@/lib/constants";
+import { Footer } from "../app/components/Footer";
+import { HIDDEN_FOOTER_PAGES } from "../lib/constants";
 
 export function ConditionalFooter() {
   const pathname = usePathname();

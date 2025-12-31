@@ -2,9 +2,9 @@
 
 import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { GameStartLoader } from "@/app/game/components/GameStartLoader";
-import { TriviaGame } from "@/app/game/games/TriviaGame1";
 import GameComingSoon from "./components/GameComingSoon";
+import { GameStartLoader } from "./components/GameStartLoader";
+import { TriviaGame } from "./games/TriviaGame1";
 
 type GameComponent = React.ComponentType<{ gameId: string }>;
 

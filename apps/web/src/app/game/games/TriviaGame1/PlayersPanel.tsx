@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { Text } from "@/components/ui/text";
+import { Text } from "../../../../components/ui/text";
 import type { GameState } from "./types";
 
 type PlayersPanelProps = {
@@ -17,12 +17,11 @@ export function PlayersPanel({
     <div className="rounded-lg bg-purple-900/50 p-4">
       <Text variant="h4" textColor="white" className="mb-4">
         Players
-        {gameState.totalPlayers !== undefined &&
-          gameState.totalPlayers > 0 && (
-            <span className="ml-2 text-sm opacity-70">
-              ({gameState.totalPlayers})
-            </span>
-          )}
+        {gameState.totalPlayers !== undefined && gameState.totalPlayers > 0 && (
+          <span className="ml-2 text-sm opacity-70">
+            ({gameState.totalPlayers})
+          </span>
+        )}
       </Text>
 
       <div className="space-y-2">
@@ -102,4 +101,3 @@ export function PlayersPanel({
     </div>
   );
 }
-

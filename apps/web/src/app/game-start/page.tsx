@@ -3,9 +3,9 @@
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import PlayFullBgSection from "@/app/components/PlayFullBgSection";
-import { Text } from "@/components/ui/text";
-import { SITE_CONFIG } from "@/lib/constants";
+import { Text } from "../../components/ui/text";
+import { SITE_CONFIG } from "../../lib/constants";
+import PlayFullBgSection from "../components/PlayFullBgSection";
 
 const TOTAL_DOTS = 8;
 const ANIMATION_DURATION = 2000; // 2 seconds

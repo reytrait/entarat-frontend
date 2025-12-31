@@ -1,7 +1,7 @@
 "use client";
 
 import type React from "react";
-import { Ellipse } from "@/components/ui/ellipse";
+import { Ellipse } from "../../components/ui/ellipse";
 
 type PlayFullBgSectionProps = {
   children: React.ReactNode;

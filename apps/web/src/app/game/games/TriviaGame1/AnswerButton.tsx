@@ -1,4 +1,4 @@
-import { Text } from "@/components/ui/text";
+import { Text } from "../../../../components/ui/text";
 import type { GameState } from "./types";
 
 type AnswerButtonProps = {

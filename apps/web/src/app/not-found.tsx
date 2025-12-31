@@ -2,9 +2,9 @@
 
 import Link from "next/link";
 import { useEffect } from "react";
-import PlayFullBgSection from "@/app/components/PlayFullBgSection";
-import { EntaratBtn } from "@/components/ui/entarat-btn";
-import { Text } from "@/components/ui/text";
+import { EntaratBtn } from "../components/ui/entarat-btn";
+import { Text } from "../components/ui/text";
+import PlayFullBgSection from "./components/PlayFullBgSection";
 
 export default function NotFound() {
   useEffect(() => {

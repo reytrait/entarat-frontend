@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect } from "react";
-import PlayFullBgSection from "@/app/components/PlayFullBgSection";
-import { Text } from "@/components/ui/text";
+import { Text } from "../../../../components/ui/text";
+import PlayFullBgSection from "../../../components/PlayFullBgSection";
 import { GameArea } from "./GameArea";
 import { GameFinished } from "./GameFinished";
 import { GameSummary } from "./GameSummary";

@@ -1,8 +1,8 @@
 "use client";
 import Image from "next/image";
-import { EntaratBtn } from "@/components/ui/entarat-btn";
-import { Text } from "@/components/ui/text";
-import { HERO } from "@/lib/constants";
+import { EntaratBtn } from "../../components/ui/entarat-btn";
+import { Text } from "../../components/ui/text";
+import { HERO } from "../../lib/constants";
 import HeroHeader from "./HeroHeader";
 
 export function Hero() {

@@ -2,10 +2,10 @@
 
 import { Splide, SplideSlide } from "@splidejs/react-splide";
 import "@splidejs/react-splide/css";
-import { Ellipse } from "@/components/ui/ellipse";
-import { TestimonialCard } from "@/components/ui/testimonial-card";
-import { Text } from "@/components/ui/text";
-import { TESTIMONIALS } from "@/lib/constants";
+import { Ellipse } from "../../components/ui/ellipse";
+import { TestimonialCard } from "../../components/ui/testimonial-card";
+import { Text } from "../../components/ui/text";
+import { TESTIMONIALS } from "../../lib/constants";
 
 export function Testimonial() {
   return (
