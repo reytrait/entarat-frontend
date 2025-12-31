@@ -9,6 +9,7 @@ import { Input } from "../../components/ui/input";
 import { Text } from "../../components/ui/text";
 import { useUser } from "../../components/user-provider";
 import { generateGameCode } from "../../lib/utils";
+import { WSMsgType } from "../../types/game";
 import HeroHeader from "../components/HeroHeader";
 import PlayFullBgSection from "../components/PlayFullBgSection";
 
@@ -65,7 +66,7 @@ export default function LobbyPage() {
     ws.onopen = () => {
       ws.send(
         JSON.stringify({
-          type: "start_game",
+          type: WSMsgType.START_GAME,
           gameId: gameId,
         }),
       );

@@ -1,3 +1,24 @@
+export enum WSMsgType {
+  // Client to Server
+  JOIN = "join",
+  START_GAME = "start_game",
+  SUBMIT_ANSWER = "submit_answer",
+  NEXT_ROUND = "next_round",
+  REQUEST_ROUND_RESULTS = "request_round_results",
+
+  // Server to Client
+  SOCKET_CONNECTED = "socket_connected",
+  ERROR = "error",
+  PLAYER_JOINED = "player_joined",
+  PLAYERS_LIST = "players_list",
+  GAME_STATE = "game_state",
+  GAME_FINISHED = "game_finished",
+  ROUND_RESULTS = "round_results",
+  GAME_STARTED = "game_started",
+  ANSWER_RECEIVED = "answer_received",
+  PLAYER_LEFT = "player_left",
+}
+
 export type Player = {
   id: string;
   name: string;
@@ -62,7 +83,7 @@ export type Game = {
 };
 
 export type JoinMessage = {
-  type: "join";
+  type: WSMsgType.JOIN;
   gameId: string;
   playerId: string;
   name: string;
@@ -70,15 +91,21 @@ export type JoinMessage = {
   deviceId: string;
   totalRounds?: number;
 };
-export type StartGameMessage = { type: "start_game"; gameId: string };
+export type StartGameMessage = {
+  type: WSMsgType.START_GAME;
+  gameId: string;
+};
 export type SubmitAnswerMessage = {
-  type: "submit_answer";
+  type: WSMsgType.SUBMIT_ANSWER;
   gameId: string;
   answer: number;
 };
-export type NextRoundMessage = { type: "next_round"; gameId: string };
+export type NextRoundMessage = {
+  type: WSMsgType.NEXT_ROUND;
+  gameId: string;
+};
 export type RequestRoundResultsMessage = {
-  type: "request_round_results";
+  type: WSMsgType.REQUEST_ROUND_RESULTS;
   gameId: string;
 };
 

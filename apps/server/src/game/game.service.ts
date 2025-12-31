@@ -7,6 +7,7 @@ import {
   JoinMessage,
   Player,
   Question,
+  WSMsgType,
 } from "../types/game";
 import { ROUND_DURATION_MS } from "./constants";
 import { GameUtilsService } from "./game-utils.service";
@@ -49,7 +50,7 @@ export class GameService {
         );
         client.send(
           JSON.stringify({
-            type: "error",
+            type: WSMsgType.ERROR,
             message: `Device already connected to this game as "${existingPlayer?.name}". Only one connection per device is allowed.`,
           }),
         );
@@ -118,7 +119,7 @@ export class GameService {
     this.broadcastToGame(
       gameId,
       {
-        type: "player_joined",
+        type: WSMsgType.PLAYER_JOINED,
         player: this.databaseService.players.get(playerId),
         players: playersData.players,
         totalPlayers: playersData.totalPlayers,
@@ -135,14 +136,14 @@ export class GameService {
       }
 
       const gameStateMessage: {
-        type: string;
+        type: WSMsgType;
         game: Game & {
           players: typeof playersData.players;
           totalPlayers: number;
           summary?: GameSummary;
         };
       } = {
-        type: "game_state",
+        type: WSMsgType.GAME_STATE,
         game: {
           ...currentGame,
           players: playersData.players,
@@ -194,7 +195,7 @@ export class GameService {
             // Send game finished with final scores
             client.send(
               JSON.stringify({
-                type: "game_finished",
+                type: WSMsgType.GAME_FINISHED,
                 scores: currentGame.playerIds.map((id) => ({
                   player: this.databaseService.players.get(id),
                   score: this.databaseService.players.get(id)?.score || 0,
@@ -246,7 +247,7 @@ export class GameService {
             // Send round results to reconnecting player
             client.send(
               JSON.stringify({
-                type: "round_results",
+                type: WSMsgType.ROUND_RESULTS,
                 round: currentGame.currentRound,
                 correctAnswer: currentQuestion.correctAnswer,
                 answers: allAnswers,
@@ -267,7 +268,7 @@ export class GameService {
 
           client.send(
             JSON.stringify({
-              type: "game_started",
+              type: WSMsgType.GAME_STARTED,
               round: currentGame.currentRound,
               totalRounds: currentGame.totalRounds,
               question: sanitizedQuestion,
@@ -307,7 +308,7 @@ export class GameService {
       this.broadcastToGame(
         gameId,
         {
-          type: "game_finished",
+          type: WSMsgType.GAME_FINISHED,
           scores: startGame.playerIds.map((id) => ({
             player: this.databaseService.players.get(id),
             score: this.databaseService.players.get(id)?.score || 0,
@@ -340,7 +341,7 @@ export class GameService {
     this.broadcastToGame(
       gameId,
       {
-        type: "game_started",
+        type: WSMsgType.GAME_STARTED,
         round: startGame.currentRound,
         totalRounds: startGame.totalRounds,
         question: sanitizedQuestion,
@@ -419,7 +420,7 @@ export class GameService {
       this.broadcastToGame(
         gameId,
         {
-          type: "answer_received",
+          type: WSMsgType.ANSWER_RECEIVED,
           playerId: playerId,
           remaining: answerGame.playerIds.length - answerGame.answers.size,
         },
@@ -444,7 +445,7 @@ export class GameService {
       this.broadcastToGame(
         gameId,
         {
-          type: "game_finished",
+          type: WSMsgType.GAME_FINISHED,
           scores: nextGame.playerIds.map((id) => ({
             player: this.databaseService.players.get(id),
             score: this.databaseService.players.get(id)?.score || 0,
@@ -466,7 +467,7 @@ export class GameService {
       this.broadcastToGame(
         gameId,
         {
-          type: "game_finished",
+          type: WSMsgType.GAME_FINISHED,
           scores: nextGame.playerIds.map((id) => ({
             player: this.databaseService.players.get(id),
             score: this.databaseService.players.get(id)?.score || 0,
@@ -499,7 +500,7 @@ export class GameService {
     this.broadcastToGame(
       gameId,
       {
-        type: "next_round",
+        type: WSMsgType.NEXT_ROUND,
         round: nextGame.currentRound,
         totalRounds: nextGame.totalRounds,
         question: sanitizedQuestion,
@@ -531,7 +532,7 @@ export class GameService {
       // Round still active or no results available
       client.send(
         JSON.stringify({
-          type: "error",
+          type: WSMsgType.ERROR,
           message: "Round is still active or results not available",
         }),
       );
@@ -617,7 +618,7 @@ export class GameService {
       this.broadcastToGame(
         gameId,
         {
-          type: "game_finished",
+          type: WSMsgType.GAME_FINISHED,
           scores: finalScores,
           summary: game.summary,
         },
@@ -662,7 +663,7 @@ export class GameService {
     this.broadcastToGame(
       gameId,
       {
-        type: "round_results",
+        type: WSMsgType.ROUND_RESULTS,
         round: game.currentRound,
         correctAnswer: currentQuestion.correctAnswer,
         answers: allAnswers,

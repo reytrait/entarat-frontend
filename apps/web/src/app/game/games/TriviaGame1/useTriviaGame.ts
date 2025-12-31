@@ -5,7 +5,13 @@ import {
   ROUND_DURATION_MS,
 } from "../../../../lib/constants/game";
 import { getDeviceId, getPlayerId } from "../../../../lib/utils";
-import type { GameState, GameSummary, Player, Question } from "./types";
+import {
+  GameSummary,
+  Player,
+  Question,
+  WSMsgType,
+} from "../../../../types/game";
+import type { GameState } from "./types";
 
 const QUESTION_DURATION = ROUND_DURATION_MS;
 const PROGRESS_INTERVAL = PROGRESS_UPDATE_INTERVAL_MS;
@@ -184,7 +190,7 @@ export function useTriviaGame(gameId: string) {
         const data = JSON.parse(event.data);
 
         switch (data.type) {
-          case "socket_connected": {
+          case WSMsgType.SOCKET_CONNECTED: {
             console.log("✅ Socket connected confirmed", {
               connectionId: data.connectionId,
               timestamp: data.timestamp,
@@ -203,7 +209,7 @@ export function useTriviaGame(gameId: string) {
               const playerId = getPlayerId();
               ws.send(
                 JSON.stringify({
-                  type: "join",
+                  type: WSMsgType.JOIN,
                   gameId: gameId,
                   playerId: playerId,
                   name: displayName || "Player",
@@ -217,7 +223,7 @@ export function useTriviaGame(gameId: string) {
             break;
           }
 
-          case "players_list":
+          case WSMsgType.PLAYERS_LIST:
             setGameState((prev) => ({
               ...prev,
               players: data.players || [],
@@ -225,7 +231,7 @@ export function useTriviaGame(gameId: string) {
             }));
             break;
 
-          case "game_state": {
+          case WSMsgType.GAME_STATE: {
             const gameStateData = data as {
               game: {
                 players: Player[];
@@ -259,7 +265,7 @@ export function useTriviaGame(gameId: string) {
             break;
           }
 
-          case "player_joined":
+          case WSMsgType.PLAYER_JOINED:
             setGameState((prev) => ({
               ...prev,
               players: data.players || [],
@@ -267,7 +273,7 @@ export function useTriviaGame(gameId: string) {
             }));
             break;
 
-          case "game_started": {
+          case WSMsgType.GAME_STARTED: {
             const gameStartedData = data as {
               round: number;
               totalRounds: number;
@@ -319,7 +325,7 @@ export function useTriviaGame(gameId: string) {
                     );
                     wsRef.current.send(
                       JSON.stringify({
-                        type: "request_round_results",
+                        type: WSMsgType.REQUEST_ROUND_RESULTS,
                         gameId: gameId,
                       }),
                     );
@@ -349,7 +355,7 @@ export function useTriviaGame(gameId: string) {
                     console.log("Requesting round results from server...");
                     wsRef.current.send(
                       JSON.stringify({
-                        type: "request_round_results",
+                        type: WSMsgType.REQUEST_ROUND_RESULTS,
                         gameId: gameId,
                       }),
                     );
@@ -380,7 +386,7 @@ export function useTriviaGame(gameId: string) {
             break;
           }
 
-          case "round_results": {
+          case WSMsgType.ROUND_RESULTS: {
             const roundResultsData = data as {
               round: number;
               correctAnswer: number;
@@ -415,7 +421,7 @@ export function useTriviaGame(gameId: string) {
                     );
                     wsRef.current.send(
                       JSON.stringify({
-                        type: "next_round",
+                        type: WSMsgType.NEXT_ROUND,
                         gameId: gameId,
                       }),
                     );
@@ -442,7 +448,7 @@ export function useTriviaGame(gameId: string) {
             break;
           }
 
-          case "next_round": {
+          case WSMsgType.NEXT_ROUND: {
             const nextRoundData = data as {
               round: number;
               totalRounds: number;
@@ -467,7 +473,7 @@ export function useTriviaGame(gameId: string) {
             break;
           }
 
-          case "player_left":
+          case WSMsgType.PLAYER_LEFT:
             setGameState((prev) => ({
               ...prev,
               players: data.players || [],
@@ -475,12 +481,12 @@ export function useTriviaGame(gameId: string) {
             }));
             break;
 
-          case "error":
+          case WSMsgType.ERROR:
             console.error("WebSocket error:", data.message);
             setConnectionError(data.message || "An error occurred");
             break;
 
-          case "game_finished": {
+          case WSMsgType.GAME_FINISHED: {
             // Clear the request timeout since we received final scores
             if (requestResultsTimeoutRef.current) {
               clearTimeout(requestResultsTimeoutRef.current);
@@ -603,7 +609,7 @@ export function useTriviaGame(gameId: string) {
     if (wsRef.current?.readyState === WebSocket.OPEN) {
       wsRef.current.send(
         JSON.stringify({
-          type: "submit_answer",
+          type: WSMsgType.SUBMIT_ANSWER,
           gameId: gameId,
           answer: answerIndex,
         }),
@@ -615,7 +621,7 @@ export function useTriviaGame(gameId: string) {
     if (wsRef.current?.readyState === WebSocket.OPEN) {
       wsRef.current.send(
         JSON.stringify({
-          type: "next_round",
+          type: WSMsgType.NEXT_ROUND,
           gameId: gameId,
         }),
       );
@@ -627,7 +633,7 @@ export function useTriviaGame(gameId: string) {
     if (wsRef.current?.readyState === WebSocket.OPEN) {
       wsRef.current.send(
         JSON.stringify({
-          type: "start_game",
+          type: WSMsgType.START_GAME,
           gameId: gameId,
         }),
       );
