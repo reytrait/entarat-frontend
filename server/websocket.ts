@@ -1,7 +1,7 @@
 import type { IncomingMessage } from "http";
 import WebSocket from "ws";
 import { db } from "./db";
-import type { WebSocketMessage } from "./types";
+import type { JoinMessage, WebSocketMessage } from "./types";
 
 // Store active connections
 export const connections = new Map<string, WebSocket>();
@@ -49,6 +49,7 @@ export function handleWebSocketConnection(
   ws: WebSocket,
   _req: IncomingMessage,
 ) {
+  let joinData: JoinMessage;
   let playerId: string | null = null;
   let gameId: string | null = null;
 
@@ -56,12 +57,41 @@ export function handleWebSocketConnection(
 
   ws.on("message", (message: WebSocket.RawData) => {
     try {
-      const data = JSON.parse(message.toString()) as WebSocketMessage;
+      const parsed = JSON.parse(message.toString());
+      const data = parsed as WebSocketMessage;
 
       switch (data.type) {
         case "join": {
-          playerId = data.playerId;
-          gameId = data.gameId;
+          // TypeScript should narrow data to JoinMessage here
+          const joinMessage = data as JoinMessage;
+          joinData = joinMessage;
+          playerId = joinMessage.playerId;
+          gameId = joinMessage.gameId;
+
+          // Check if device already has a player in this game
+          const game = db.games.get(gameId);
+          if (game) {
+            const existingPlayerWithDevice = game.playerIds.find((pid) => {
+              const player = db.players.get(pid);
+              return player?.deviceId === joinMessage.deviceId;
+            });
+
+            if (existingPlayerWithDevice) {
+              const existingPlayer = db.players.get(existingPlayerWithDevice);
+              console.log(
+                `❌ Device already in game - Device: "${joinMessage.deviceId}", Existing Player: "${existingPlayer?.name}" (${existingPlayerWithDevice})`,
+              );
+              ws.send(
+                JSON.stringify({
+                  type: "error",
+                  message: `Device already connected to this game as "${existingPlayer?.name}". Only one connection per device is allowed.`,
+                }),
+              );
+              ws.close(1008, "Device already in game");
+              return;
+            }
+          }
+
           connections.set(playerId, ws);
 
           // Add player to game
@@ -70,7 +100,7 @@ export function handleWebSocketConnection(
               id: gameId,
               playerIds: [],
               currentRound: 0,
-              totalRounds: data.totalRounds || 12,
+              totalRounds: joinMessage.totalRounds || 12,
               status: "waiting",
               answers: new Map(),
               startTime: null,
@@ -78,27 +108,30 @@ export function handleWebSocketConnection(
             console.log(`🎮 New game created: ${gameId}`);
           }
 
-          const game = db.games.get(gameId);
-          if (game && !game.playerIds.includes(playerId)) {
-            game.playerIds.push(playerId);
+          const currentGame = db.games.get(gameId);
+          if (currentGame && !currentGame.playerIds.includes(playerId)) {
+            currentGame.playerIds.push(playerId);
           }
 
-          // Store player info
+          // Store player info with deviceId
           db.players.set(playerId, {
             id: playerId,
-            name: data.name,
-            avatar: data.avatar,
+            name: joinMessage.name,
+            avatar: joinMessage.avatar,
             gameId: gameId,
             score: 0,
+            deviceId: joinMessage.deviceId,
           });
 
           // Log user joined
           console.log(
-            `✅ User joined - Name: "${data.name}", ID: "${playerId}", Game: "${gameId}"`,
+            `✅ User joined - Name: "${joinMessage.name}", ID: "${playerId}", Device: "${joinMessage.deviceId}", Game: "${gameId}"`,
           );
 
           // Get limited players list (max 15) with total count
-          const playersData = getLimitedPlayersList(game?.playerIds || []);
+          const playersData = getLimitedPlayersList(
+            currentGame?.playerIds || [],
+          );
 
           // Send limited players list to the newly joined user
           ws.send(
@@ -122,7 +155,7 @@ export function handleWebSocketConnection(
             JSON.stringify({
               type: "game_state",
               game: {
-                ...game,
+                ...currentGame,
                 players: playersData.players,
                 totalPlayers: playersData.totalPlayers,
               },
@@ -255,7 +288,8 @@ export function handleWebSocketConnection(
   });
 
   ws.on("close", () => {
-    if (playerId) {
+    if (joinData?.playerId) {
+      const playerId = joinData.playerId;
       const player = db.players.get(playerId);
       const playerName = player?.name || "Unknown";
       console.log(
@@ -276,7 +310,7 @@ export function handleWebSocketConnection(
         }
       }
     } else {
-      console.log("👋 WebSocket connection closed (no player ID)");
+      console.log("👋 WebSocket connection closed (no player ID)", joinData);
     }
   });
 }

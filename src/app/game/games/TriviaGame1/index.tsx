@@ -1,6 +1,8 @@
 "use client";
 
+import { useEffect } from "react";
 import PlayFullBgSection from "@/app/components/PlayFullBgSection";
+import { Text } from "@/components/ui/text";
 import { GameArea } from "./GameArea";
 import { PlayersPanel } from "./PlayersPanel";
 import type { TriviaGameProps } from "./types";
@@ -13,10 +15,32 @@ export function TriviaGame({ gameId }: TriviaGameProps) {
     autoPlay,
     setAutoPlay,
     progress,
+    connectionError,
     handleAnswerSelect,
     handleNextRound,
     handleStartGame,
   } = useTriviaGame(gameId);
+
+  useEffect(() => {
+    console.log("TriviaGame1");
+  }, []);
+
+  if (connectionError) {
+    return (
+      <PlayFullBgSection>
+        <div className="flex min-h-screen items-center justify-center">
+          <div className="text-center">
+            <Text variant="h2" textColor="white" className="mb-4">
+              Connection Error
+            </Text>
+            <Text variant="body" textColor="white" className="opacity-80">
+              {connectionError}
+            </Text>
+          </div>
+        </div>
+      </PlayFullBgSection>
+    );
+  }
 
   if (!gameState.question && gameState.round === 0) {
     return <WaitingScreen onStartGame={handleStartGame} />;

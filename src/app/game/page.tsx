@@ -1,7 +1,7 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { GameStartLoader } from "@/app/game/components/GameStartLoader";
 import { TriviaGame } from "@/app/game/games/TriviaGame1";
 import GameComingSoon from "./components/GameComingSoon";
@@ -24,15 +24,26 @@ export default function GamePage() {
   const searchParams = useSearchParams();
   const gameId = searchParams.get("gameId") || "trivia-1";
   const [gameStarted, setGameStarted] = useState(false);
+  const startedRef = useRef(false);
 
   const GameComponent = useMemo(() => {
     const game = gamesAvailable.find((g) => g.id === gameId);
     return game?.component || null;
   }, [gameId]);
 
-  const handleGameStartComplete = () => {
+  // Memoize the callback to prevent it from changing on re-renders
+  const handleGameStartComplete = useCallback(() => {
+    if (startedRef.current) {
+      console.log("Game already started, ignoring duplicate call");
+      return;
+    }
+    startedRef.current = true;
     setGameStarted(true);
-  };
+  }, []);
+
+  useEffect(() => {
+    console.log("GamePage mounted");
+  }, []);
 
   return (
     <>
@@ -42,7 +53,7 @@ export default function GamePage() {
       {/* Main game content - only show after loader completes */}
       {gameStarted &&
         (GameComponent ? (
-          <GameComponent gameId={gameId} />
+          <GameComponent key={gameId} gameId={gameId} />
         ) : (
           <GameComingSoon gameId={gameId} />
         ))}

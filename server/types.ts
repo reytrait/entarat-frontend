@@ -4,6 +4,7 @@ export type Player = {
   avatar: string;
   gameId: string;
   score: number;
+  deviceId: string;
 };
 
 export type Question = {
@@ -25,15 +26,25 @@ export type Game = {
   startTime: number | null;
 };
 
+export type JoinMessage = {
+  type: "join";
+  gameId: string;
+  playerId: string;
+  name: string;
+  avatar: string;
+  deviceId: string;
+  totalRounds?: number;
+};
+export type StartGameMessage = { type: "start_game"; gameId: string };
+export type SubmitAnswerMessage = {
+  type: "submit_answer";
+  gameId: string;
+  answer: number;
+};
+export type NextRoundMessage = { type: "next_round"; gameId: string };
+
 export type WebSocketMessage =
-  | {
-      type: "join";
-      gameId: string;
-      playerId: string;
-      name: string;
-      avatar: string;
-      totalRounds?: number;
-    }
-  | { type: "start_game"; gameId: string }
-  | { type: "submit_answer"; gameId: string; answer: number }
-  | { type: "next_round"; gameId: string };
+  | JoinMessage
+  | StartGameMessage
+  | SubmitAnswerMessage
+  | NextRoundMessage;
