@@ -1,36 +1,116 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Entarat - Trivia Game Platform
 
-## Getting Started
+A modern trivia game platform built with Next.js frontend and NestJS backend in a monorepo structure.
 
-First, run the development server:
+## 🏗️ Project Structure
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+```
+entarat-FE/
+├── apps/
+│   ├── web/          # Next.js frontend application
+│   └── server/       # NestJS backend server
+├── packages/
+│   └── shared/       # Shared TypeScript types and utilities
+└── pnpm-workspace.yaml
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🚀 Quick Start
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Prerequisites
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- Node.js 20+
+- pnpm
 
-## Learn More
+### Installation
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+# Install dependencies
+pnpm install
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+# Build shared package
+pnpm build:shared
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Development
 
-## Deploy on Vercel
+```bash
+# Start both frontend and backend
+pnpm dev
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+# Or start separately
+pnpm dev:web      # Next.js frontend (port 3000)
+pnpm dev:server   # NestJS backend (port 3001)
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Environment Setup
+
+1. **Frontend** (`apps/web/.env.local`):
+   ```env
+   NEXT_PUBLIC_API_URL=http://localhost:3001
+   NEXT_PUBLIC_WS_URL=ws://localhost:3001
+   ```
+
+2. **Backend** (`apps/server/.env`):
+   ```env
+   PORT=3001
+   FRONTEND_URL=http://localhost:3000
+   NODE_ENV=development
+   ```
+
+Copy the example files:
+```bash
+cp apps/web/.env.example apps/web/.env.local
+cp apps/server/.env.example apps/server/.env
+```
+
+## 📦 Build
+
+```bash
+# Build all packages
+pnpm build
+
+# Or build individually
+pnpm build:shared
+pnpm build:server
+pnpm build:web
+```
+
+## 🚢 Deployment
+
+See [DEPLOYMENT.md](./DEPLOYMENT.md) for detailed deployment instructions including:
+- AWS EC2 deployment
+- Vercel deployment
+- Docker deployment
+- Environment configuration
+- SSL/HTTPS setup
+
+## 📚 Documentation
+
+- [DEPLOYMENT.md](./DEPLOYMENT.md) - Complete deployment guide
+- [MONOREPO_MIGRATION.md](./MONOREPO_MIGRATION.md) - Migration details
+- [CHANGELOG.md](./CHANGELOG.md) - Change history
+
+## 🛠️ Tech Stack
+
+- **Frontend**: Next.js 16, React 19, TypeScript, Tailwind CSS
+- **Backend**: NestJS, WebSocket
+- **Package Manager**: pnpm
+- **Monorepo**: pnpm workspaces
+
+## 📝 Scripts
+
+- `pnpm dev` - Start both frontend and backend in development
+- `pnpm build` - Build all packages
+- `pnpm start` - Start production servers
+- `pnpm lint` - Lint code
+- `pnpm format` - Format code
+
+## 🔒 Security
+
+- Backend URL is not exposed to client (uses Next.js API routes)
+- Environment variables for sensitive configuration
+- CORS configured for frontend domain only
+
+## 📄 License
+
+Private - All rights reserved
