@@ -22,6 +22,7 @@ export type GameState = {
   showResults: boolean;
   correctAnswer: number | null;
   players: Player[];
+  totalPlayers?: number;
   answers: Array<{
     playerId: string;
     player: Player;

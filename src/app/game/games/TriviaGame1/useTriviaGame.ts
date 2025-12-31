@@ -45,90 +45,134 @@ export function useTriviaGame(gameId: string) {
         });
       }, PROGRESS_INTERVAL);
     };
+
+    // Skip if already connected or connecting
+    if (wsRef.current) {
+      const currentState = wsRef.current.readyState;
+      if (
+        currentState === WebSocket.CONNECTING ||
+        currentState === WebSocket.OPEN
+      ) {
+        return;
+      }
+    }
+
     // Connect to WebSocket
     const wsUrl =
       typeof window !== "undefined"
         ? `${window.location.protocol === "https:" ? "wss:" : "ws:"}//${window.location.host}/ws`
         : "ws://localhost:3000/ws";
-    const ws = new WebSocket(wsUrl);
-    wsRef.current = ws;
+
+    let ws: WebSocket;
+    try {
+      ws = new WebSocket(wsUrl);
+      wsRef.current = ws;
+    } catch (error) {
+      console.error("Failed to create WebSocket:", error);
+      return;
+    }
 
     ws.onopen = () => {
       console.log("WebSocket connected");
       // Join game
-      ws.send(
-        JSON.stringify({
-          type: "join",
-          gameId: gameId,
-          playerId: `player-${Date.now()}`,
-          name: displayName || "Player",
-          avatar: selectedAvatar || "/avatars/avatar-blue-square.svg",
-          totalRounds: 12,
-        }),
-      );
+      if (ws.readyState === WebSocket.OPEN) {
+        ws.send(
+          JSON.stringify({
+            type: "join",
+            gameId: gameId,
+            playerId: `player-${Date.now()}`,
+            name: displayName || "Player",
+            avatar: selectedAvatar || "/avatars/avatar-blue-square.svg",
+            totalRounds: 12,
+          }),
+        );
+      }
     };
 
     ws.onmessage = (event) => {
-      const data = JSON.parse(event.data);
+      try {
+        const data = JSON.parse(event.data);
 
-      switch (data.type) {
-        case "game_state":
-          setGameState((prev) => ({
-            ...prev,
-            players: data.game.players || [],
-            round: data.game.currentRound || 0,
-            totalRounds: data.game.totalRounds || 12,
-          }));
-          break;
+        switch (data.type) {
+          case "players_list":
+            // Explicit players list sent to newly joined user
+            setGameState((prev) => ({
+              ...prev,
+              players: data.players || [],
+              totalPlayers: data.totalPlayers,
+            }));
+            break;
 
-        case "player_joined":
-          setGameState((prev) => ({
-            ...prev,
-            players: data.players || [],
-          }));
-          break;
+          case "game_state":
+            setGameState((prev) => ({
+              ...prev,
+              players: data.game.players || [],
+              totalPlayers: data.game.totalPlayers,
+              round: data.game.currentRound || 0,
+              totalRounds: data.game.totalRounds || 12,
+            }));
+            break;
 
-        case "game_started":
-          setGameState((prev) => ({
-            ...prev,
-            round: data.round,
-            totalRounds: data.totalRounds,
-            question: data.question,
-            selectedAnswer: null,
-            showResults: false,
-            correctAnswer: null,
-            answers: [],
-          }));
-          startProgressTimer();
-          break;
+          case "player_joined":
+            setGameState((prev) => ({
+              ...prev,
+              players: data.players || [],
+              totalPlayers: data.totalPlayers,
+            }));
+            break;
 
-        case "round_results":
-          setGameState((prev) => ({
-            ...prev,
-            showResults: true,
-            correctAnswer: data.correctAnswer,
-            answers: data.answers || [],
-          }));
-          stopProgressTimer();
-          break;
+          case "game_started":
+            setGameState((prev) => ({
+              ...prev,
+              round: data.round,
+              totalRounds: data.totalRounds,
+              question: data.question,
+              selectedAnswer: null,
+              showResults: false,
+              correctAnswer: null,
+              answers: [],
+            }));
+            startProgressTimer();
+            break;
 
-        case "next_round":
-          setGameState((prev) => ({
-            ...prev,
-            round: data.round,
-            question: data.question,
-            selectedAnswer: null,
-            showResults: false,
-            correctAnswer: null,
-            answers: [],
-          }));
-          startProgressTimer();
-          break;
+          case "round_results":
+            setGameState((prev) => ({
+              ...prev,
+              showResults: true,
+              correctAnswer: data.correctAnswer,
+              answers: data.answers || [],
+            }));
+            stopProgressTimer();
+            break;
 
-        case "game_finished":
-          // Handle game finished
-          console.log("Game finished", data.scores);
-          break;
+          case "next_round":
+            setGameState((prev) => ({
+              ...prev,
+              round: data.round,
+              question: data.question,
+              selectedAnswer: null,
+              showResults: false,
+              correctAnswer: null,
+              answers: [],
+            }));
+            startProgressTimer();
+            break;
+
+          case "player_left":
+            setGameState((prev) => ({
+              ...prev,
+              players: data.players || [],
+              totalPlayers: data.totalPlayers,
+            }));
+            break;
+
+          case "game_finished":
+            // Handle game finished
+            console.log("Game finished", data.scores);
+            break;
+        }
+      } catch (error) {
+        console.error("Error parsing WebSocket message:", error);
       }
     };
 
@@ -136,13 +180,26 @@ export function useTriviaGame(gameId: string) {
       console.error("WebSocket error:", error);
     };
 
-    ws.onclose = () => {
-      console.log("WebSocket disconnected");
+    ws.onclose = (event) => {
+      console.log("WebSocket disconnected", event.code, event.reason);
+      // Only clear ref if this is our connection
+      if (wsRef.current === ws) {
+        wsRef.current = null;
+      }
     };
 
     return () => {
-      ws.close();
       stopProgressTimer();
+      // Only close if this is still our connection
+      if (wsRef.current === ws) {
+        if (
+          ws.readyState === WebSocket.CONNECTING ||
+          ws.readyState === WebSocket.OPEN
+        ) {
+          ws.close(1000, "Component unmounting");
+        }
+        wsRef.current = null;
+      }
     };
   }, [gameId, displayName, selectedAvatar]);
 

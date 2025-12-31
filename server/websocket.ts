@@ -19,9 +19,40 @@ export function broadcastToGame(gameId: string, message: object) {
   });
 }
 
-export function handleWebSocketConnection(ws: WebSocket, req: IncomingMessage) {
+// Helper function to get limited players list (max 15) with total count
+function getLimitedPlayersList(playerIds: string[]): {
+  players: Array<{
+    id: string;
+    name: string;
+    avatar: string;
+    score: number;
+    gameId: string;
+  }>;
+  totalPlayers: number;
+} {
+  const allPlayers = playerIds
+    .map((id) => db.players.get(id))
+    .filter(
+      (player): player is NonNullable<typeof player> => player !== undefined,
+    );
+
+  const totalPlayers = allPlayers.length;
+  const limitedPlayers = allPlayers.slice(0, 15);
+
+  return {
+    players: limitedPlayers,
+    totalPlayers,
+  };
+}
+
+export function handleWebSocketConnection(
+  ws: WebSocket,
+  _req: IncomingMessage,
+) {
   let playerId: string | null = null;
   let gameId: string | null = null;
+
+  console.log("🔌 New WebSocket connection established");
 
   ws.on("message", (message: WebSocket.RawData) => {
     try {
@@ -44,6 +75,7 @@ export function handleWebSocketConnection(ws: WebSocket, req: IncomingMessage) {
               answers: new Map(),
               startTime: null,
             });
+            console.log(`🎮 New game created: ${gameId}`);
           }
 
           const game = db.games.get(gameId);
@@ -60,20 +92,39 @@ export function handleWebSocketConnection(ws: WebSocket, req: IncomingMessage) {
             score: 0,
           });
 
-          // Notify all players in game
+          // Log user joined
+          console.log(
+            `✅ User joined - Name: "${data.name}", ID: "${playerId}", Game: "${gameId}"`,
+          );
+
+          // Get limited players list (max 15) with total count
+          const playersData = getLimitedPlayersList(game?.playerIds || []);
+
+          // Send limited players list to the newly joined user
+          ws.send(
+            JSON.stringify({
+              type: "players_list",
+              players: playersData.players,
+              totalPlayers: playersData.totalPlayers,
+            }),
+          );
+
+          // Notify all players in game (including the newly joined one)
           broadcastToGame(gameId, {
             type: "player_joined",
             player: db.players.get(playerId),
-            players: game?.playerIds.map((id) => db.players.get(id)) || [],
+            players: playersData.players,
+            totalPlayers: playersData.totalPlayers,
           });
 
-          // Send current game state
+          // Send current game state to the newly joined user
           ws.send(
             JSON.stringify({
               type: "game_state",
               game: {
                 ...game,
-                players: game?.playerIds.map((id) => db.players.get(id)) || [],
+                players: playersData.players,
+                totalPlayers: playersData.totalPlayers,
               },
             }),
           );
@@ -205,18 +256,27 @@ export function handleWebSocketConnection(ws: WebSocket, req: IncomingMessage) {
 
   ws.on("close", () => {
     if (playerId) {
+      const player = db.players.get(playerId);
+      const playerName = player?.name || "Unknown";
+      console.log(
+        `👋 User disconnected - Name: "${playerName}", ID: "${playerId}"`,
+      );
       connections.delete(playerId);
       if (gameId) {
         const game = db.games.get(gameId);
         if (game) {
           game.playerIds = game.playerIds.filter((id) => id !== playerId);
+          const playersData = getLimitedPlayersList(game.playerIds);
           broadcastToGame(gameId, {
             type: "player_left",
             playerId: playerId,
-            players: game.playerIds.map((id) => db.players.get(id)),
+            players: playersData.players,
+            totalPlayers: playersData.totalPlayers,
           });
         }
       }
+    } else {
+      console.log("👋 WebSocket connection closed (no player ID)");
     }
   });
 }

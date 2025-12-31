@@ -17,6 +17,12 @@ export function PlayersPanel({
     <div className="rounded-lg bg-purple-900/50 p-4">
       <Text variant="h4" textColor="white" className="mb-4">
         Players
+        {gameState.totalPlayers !== undefined &&
+          gameState.totalPlayers > 0 && (
+            <span className="ml-2 text-sm opacity-70">
+              ({gameState.totalPlayers})
+            </span>
+          )}
       </Text>
 
       <div className="space-y-2">
@@ -45,6 +51,17 @@ export function PlayersPanel({
             <div className="h-6 w-6 rounded-full bg-yellow-500" />
           </div>
         ))}
+        {gameState.totalPlayers !== undefined &&
+          gameState.totalPlayers > gameState.players.length && (
+            <div className="rounded-md bg-gray-800/30 p-2 text-center">
+              <Text variant="small" textColor="white" className="opacity-70">
+                +{gameState.totalPlayers - gameState.players.length} more
+                {gameState.totalPlayers - gameState.players.length === 1
+                  ? " player"
+                  : " players"}
+              </Text>
+            </div>
+          )}
       </div>
 
       {/* Controls */}
