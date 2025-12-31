@@ -1,21 +1,8 @@
 {
+    "$schema": "https://vercel.com/schema.json",
     "framework": "nextjs",
+    "installCommand": "npm install:web",
     "buildCommand": "npm run build:web",
-    "outputDirectory": ".next",
-    "$schema": "https://vercel.com/schemas/v29.json",
-    "projectSettings": {},
-    "rootDirectory": "apps/web",
-    "builds": [
-      {
-        "src": "apps/web/package.json",
-        "use": "@vercel/next"
-      }
-    ],
-    "routes": [
-      {
-        "src": "/(.*)",
-        "dest": "/$1"
-      }
-    ]
+    "outputDirectory": ".next"
   }
   
