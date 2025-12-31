@@ -1,8 +1,6 @@
 {
-    "projects": {
       "frontend": {
         "rootDirectory": "apps/web"
-      }
     }
   }
   
