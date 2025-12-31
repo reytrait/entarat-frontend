@@ -57,8 +57,29 @@ export default function LobbyPage() {
   };
 
   const handleStartGame = () => {
-    // Navigate directly to game page (it will show the loader first)
-    router.push(`/game?gameId=${gameId}`);
+    // Start game via WebSocket before navigating
+    const wsUrl =
+      typeof window !== "undefined"
+        ? `${window.location.protocol === "https:" ? "wss:" : "ws:"}//${window.location.host}/ws`
+        : "ws://localhost:3000/ws";
+
+    const ws = new WebSocket(wsUrl);
+    ws.onopen = () => {
+      ws.send(
+        JSON.stringify({
+          type: "start_game",
+          gameId: gameId,
+        }),
+      );
+      ws.close();
+      // Navigate to game page after starting
+      router.push(`/game?gameId=${gameId}`);
+    };
+
+    ws.onerror = () => {
+      // If WebSocket fails, still navigate (game will try to connect)
+      router.push(`/game?gameId=${gameId}`);
+    };
   };
 
   // QR code data - only use shareLink after mount to avoid hydration mismatch

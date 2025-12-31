@@ -4,14 +4,6 @@ import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { GameStartLoader } from "@/app/game/components/GameStartLoader";
 import { TriviaGame } from "@/app/game/components/TriviaGame";
-import GameComingSoon from "./components/GameComingSoon";
-
-const gamesAvailable = [
-  {
-    id: "trivia-1",
-    component: TriviaGame,
-  },
-];
 
 export default function GamePage() {
   const searchParams = useSearchParams();
@@ -28,15 +20,7 @@ export default function GamePage() {
       {!gameStarted && <GameStartLoader onComplete={handleGameStartComplete} />}
 
       {/* Main game content */}
-      {
-        gamesAvailable.find((game) => game.id === gameId)?.component ? (
-          <gamesAvailable.find((game) => game.id === gameId)?.component gameId={gameId} />
-        ) : (
-          <GameComingSoon gameId={gameId} />
-        )
-      }
-      {gameStarted && <gamesAvailable.find((game) => game.id === gameId)?.component gameId={gameId} />}
-      {/* {gameStarted && <TriviaGame gameId={gameId} />} */}
+      {gameStarted && <TriviaGame gameId={gameId} />}
     </>
   );
 }
