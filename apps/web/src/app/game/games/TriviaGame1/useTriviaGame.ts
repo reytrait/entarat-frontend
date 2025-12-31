@@ -154,12 +154,9 @@ export function useTriviaGame(gameId: string) {
 			connectionRegistry.delete(gameId);
 		}
 
-		// Connect to WebSocket through Next.js proxy
-		// The proxy hides the real backend server URL
-		const wsUrl =
-			typeof window !== "undefined"
-				? `${window.location.protocol === "https:" ? "wss:" : "ws:"}//${window.location.host}/api/ws`
-				: "ws://localhost:3000/api/ws";
+		// TEMPORARILY: Connect directly to backend (bypassing proxy)
+		// TODO: Re-enable proxy after testing
+		const wsUrl = process.env.NEXT_PUBLIC_WS_URL || "ws://localhost:3001/ws";
 
 		let ws: WebSocket;
 		try {

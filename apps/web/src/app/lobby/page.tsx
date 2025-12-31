@@ -57,11 +57,9 @@ export default function LobbyPage() {
   };
 
   const handleStartGame = () => {
-    // Start game via WebSocket proxy before navigating
-    const wsUrl =
-      typeof window !== "undefined"
-        ? `${window.location.protocol === "https:" ? "wss:" : "ws:"}//${window.location.host}/api/ws`
-        : "ws://localhost:3000/api/ws";
+    // TEMPORARILY: Connect directly to backend (bypassing proxy)
+    // TODO: Re-enable proxy after testing
+    const wsUrl = process.env.NEXT_PUBLIC_WS_URL || "ws://localhost:3001/ws";
 
     const ws = new WebSocket(wsUrl);
     ws.onopen = () => {

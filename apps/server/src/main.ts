@@ -1,6 +1,8 @@
 import { NestFactory } from "@nestjs/core";
 import { WsAdapter } from "@nestjs/platform-ws";
+import { WebSocketServer } from "ws";
 import { AppModule } from "./app.module";
+import { GameGateway } from "./game/game.gateway";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -18,10 +20,21 @@ async function bootstrap() {
   });
 
   const port = process.env.PORT || 3001;
-  await app.listen(port);
+  const httpServer = await app.listen(port);
+  
+  // Manually create WebSocket server and attach it to GameGateway
+  const wss = new WebSocketServer({ 
+    server: httpServer,
+    path: "/ws"
+  });
+  
+  const gameGateway = app.get(GameGateway);
+  gameGateway.setServer(wss);
+  
   console.log(`🚀 NestJS server is running on: http://localhost:${port}`);
   console.log(`📡 CORS enabled for: ${frontendUrl}`);
   console.log(`🔌 WebSocket server ready at ws://localhost:${port}/ws`);
+  console.log(`   Connect to: ws://localhost:${port}/ws`);
 }
 bootstrap();
 
