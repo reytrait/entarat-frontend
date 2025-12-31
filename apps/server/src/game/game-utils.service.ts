@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import type { Game, GameSummary, Question } from "@entarat/shared";
+import type { Game, GameSummary, Question } from "../types/game";
 import { DatabaseService } from "../database/database.service";
 
 @Injectable()

@@ -1,6 +1,6 @@
 import { Injectable, OnModuleInit, OnModuleDestroy, Logger } from "@nestjs/common";
 import Redis from "ioredis";
-import type { Game, Player } from "@entarat/shared";
+import type { Game, Player } from "../types/game";
 
 @Injectable()
 export class RedisService implements OnModuleInit, OnModuleDestroy {

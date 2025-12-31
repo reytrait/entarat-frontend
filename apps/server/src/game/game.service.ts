@@ -6,7 +6,7 @@ import type {
   JoinMessage,
   Player,
   Question,
-} from "@entarat/shared";
+} from "../types/game";
 import { DatabaseService } from "../database/database.service";
 import { GameUtilsService } from "./game-utils.service";
 import { RoundTimerService } from "./round-timer.service";

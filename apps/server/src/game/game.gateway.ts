@@ -1,7 +1,7 @@
 import { Injectable, OnModuleInit } from "@nestjs/common";
 import { WebSocketServer } from "@nestjs/platform-ws";
 import { Server, WebSocket } from "ws";
-import type { JoinMessage } from "@entarat/shared";
+import type { JoinMessage } from "../types/game";
 import { DatabaseService } from "../database/database.service";
 import { GameService } from "./game.service";
 import { RoundTimerService } from "./round-timer.service";
