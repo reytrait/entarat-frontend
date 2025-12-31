@@ -11,7 +11,6 @@ import type {
   Game,
   GameSummary,
   JoinMessage,
-  RoundData,
   WebSocketMessage,
 } from "./types";
 import {
@@ -270,16 +269,35 @@ export function handleWebSocketConnection(
           });
 
           // Send current game state to the newly joined user
-          ws.send(
-            JSON.stringify({
+          if (currentGame) {
+            // If game is finished and summary doesn't exist, generate it
+            if (currentGame.status === "finished" && !currentGame.summary) {
+              currentGame.summary = generateGameSummary(currentGame);
+            }
+
+            const gameStateMessage: {
+              type: string;
+              game: Game & {
+                players: typeof playersData.players;
+                totalPlayers: number;
+                summary?: GameSummary;
+              };
+            } = {
               type: "game_state",
               game: {
                 ...currentGame,
                 players: playersData.players,
                 totalPlayers: playersData.totalPlayers,
               },
-            }),
-          );
+            };
+
+            // Include summary if game is finished
+            if (currentGame.status === "finished" && currentGame.summary) {
+              gameStateMessage.game.summary = currentGame.summary;
+            }
+
+            ws.send(JSON.stringify(gameStateMessage));
+          }
 
           // If game is in progress, check if round has expired
           if (

@@ -217,15 +217,39 @@ export function useTriviaGame(gameId: string) {
             }));
             break;
 
-          case "game_state":
+          case "game_state": {
+            const gameStateData = data as {
+              game: {
+                players: Player[];
+                totalPlayers: number;
+                currentRound: number;
+                totalRounds: number;
+                status: string;
+                summary?: GameSummary;
+              };
+            };
+
+            // If game is finished, set finished state and summary
+            const isFinished = gameStateData.game.status === "finished";
+            
             setGameState((prev) => ({
               ...prev,
-              players: data.game.players || [],
-              totalPlayers: data.game.totalPlayers,
-              round: data.game.currentRound || 0,
-              totalRounds: data.game.totalRounds || 12,
+              players: gameStateData.game.players || [],
+              totalPlayers: gameStateData.game.totalPlayers,
+              round: gameStateData.game.currentRound || 0,
+              totalRounds: gameStateData.game.totalRounds || 12,
+              isFinished: isFinished,
+              summary: gameStateData.game.summary,
+              // If finished, also set final scores from players
+              ...(isFinished && {
+                finalScores: gameStateData.game.players.map((player) => ({
+                  player,
+                  score: player.score || 0,
+                })),
+              }),
             }));
             break;
+          }
 
           case "player_joined":
             setGameState((prev) => ({

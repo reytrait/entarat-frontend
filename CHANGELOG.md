@@ -51,14 +51,17 @@ All changes are listed with timestamps in reverse chronological order (newest fi
 - Updated `submit_answer` handler to save round data to history
 - Updated `round-timer.ts` to save round history and generate summary
 - Initialize `roundHistory: []` when creating new games
+- Updated `game_state` message to include summary when game is finished (2025-12-31)
+- Automatically generates summary if missing when sending `game_state` for finished games (2025-12-31)
 
 **Client-Side:**
 - Added `GameSummary` type matching server structure
 - Added `summary?: GameSummary` to `GameState`
 - Created `GameSummary.tsx` component for detailed game breakdown display
-- Updated `useTriviaGame.ts` to handle summary in `game_finished` message
+- Updated `useTriviaGame.ts` to handle summary in `game_finished` message and `game_state` message
 - Updated `index.tsx` to show `GameSummary` component when summary is available
 - Added auto-play functionality with 3-second delay after round results
+- Added `yellow` text color variant to Text component for winner highlighting
 - Added `autoPlayTimeoutRef` to track auto-play timeout
 - Added `autoPlayRef` to track current autoplay state without dependency issues
 - Auto-play automatically sends `next_round` event when enabled and round results received

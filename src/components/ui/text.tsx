@@ -22,6 +22,7 @@ const textVariants = cva("m-0", {
       "white/90": "text-white/90",
       "white/80": "text-white/80",
       "white/60": "text-white/60",
+      yellow: "text-yellow-400",
     },
     align: {
       left: "text-left",
