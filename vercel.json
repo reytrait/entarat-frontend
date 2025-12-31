@@ -1,6 +1,7 @@
 {
-      "frontend": {
-        "rootDirectory": "apps/web"
-    }
+    "$schema": "https://vercel.com/schema.json",
+    "framework": "nextjs",
+    "buildCommand": "npm run build:web",
+    "outputDirectory": ".next"
   }
   
