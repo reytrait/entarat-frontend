@@ -2,8 +2,23 @@ import type { IncomingMessage } from "http";
 import WebSocket from "ws";
 import { ROUND_DURATION_MS } from "../src/lib/constants/game";
 import { db } from "./db";
-import type { JoinMessage, WebSocketMessage } from "./types";
-import { getUnusedQuestion, randomizeQuestionOptions } from "./utils";
+import {
+  getRoundResults,
+  startRoundTimer,
+  stopRoundTimer,
+} from "./round-timer";
+import type {
+  Game,
+  GameSummary,
+  JoinMessage,
+  RoundData,
+  WebSocketMessage,
+} from "./types";
+import {
+  getUnusedQuestion,
+  randomizeQuestionOptions,
+  sanitizeQuestionForClient,
+} from "./utils";
 
 // Store active connections
 export const connections = new Map<string, WebSocket>();
@@ -19,6 +34,96 @@ export function broadcastToGame(gameId: string, message: object) {
       connection.send(JSON.stringify(message));
     }
   });
+}
+
+// Helper function to generate game summary (exported for use in round-timer)
+export function generateGameSummary(game: Game): GameSummary {
+  const questions = game.roundHistory.map((roundData) => ({
+    round: roundData.round,
+    question: roundData.question,
+    correctAnswer: roundData.question.correctAnswer,
+  }));
+
+  const playerStats = game.playerIds.map((playerId) => {
+    const player = db.players.get(playerId);
+    let questionsPassed = 0;
+    let questionsFailed = 0;
+    const answers: Array<{
+      round: number;
+      answer: number;
+      isCorrect: boolean;
+    }> = [];
+
+    game.roundHistory.forEach((roundData) => {
+      const playerAnswer = roundData.playerAnswers.get(playerId);
+      if (playerAnswer) {
+        answers.push({
+          round: roundData.round,
+          answer: playerAnswer.answer,
+          isCorrect: playerAnswer.isCorrect,
+        });
+        if (playerAnswer.isCorrect) {
+          questionsPassed++;
+        } else {
+          questionsFailed++;
+        }
+      } else {
+        // No answer submitted
+        answers.push({
+          round: roundData.round,
+          answer: -1,
+          isCorrect: false,
+        });
+        questionsFailed++;
+      }
+    });
+
+    return {
+      playerId,
+      player,
+      totalScore: player?.score || 0,
+      questionsPassed,
+      questionsFailed,
+      answers,
+    };
+  });
+
+  return {
+    questions,
+    playerStats,
+  };
+}
+
+// Helper function to check if all rounds are complete and send final results
+function checkAndCompleteGame(gameId: string, game: Game): boolean {
+  const isLastRound = game.currentRound >= game.totalRounds;
+
+  if (isLastRound && game.status === "playing") {
+    // All rounds complete - mark as finished and send final results
+    game.status = "finished";
+
+    // Generate summary
+    game.summary = generateGameSummary(game);
+
+    const finalScores = game.playerIds.map((id: string) => ({
+      player: db.players.get(id),
+      score: db.players.get(id)?.score || 0,
+    }));
+
+    broadcastToGame(gameId, {
+      type: "game_finished",
+      scores: finalScores,
+      summary: game.summary,
+    });
+
+    console.log(
+      `🎉 All rounds complete! Game finished - Round: ${game.currentRound}/${game.totalRounds}`,
+    );
+
+    return true; // Game completed
+  }
+
+  return false; // Game still in progress
 }
 
 // Helper function to get limited players list (max 15) with total count
@@ -115,6 +220,7 @@ export function handleWebSocketConnection(
               roundStartTime: null,
               roundDuration: ROUND_DURATION_MS,
               usedQuestionIds: [], // Track used questions
+              roundHistory: [], // Track all rounds with questions and answers
             });
             console.log(
               `🎮 New game created: ${gameId} with ${totalRounds} rounds (max available: ${maxRounds})`,
@@ -187,62 +293,107 @@ export function handleWebSocketConnection(
             const remaining = Math.max(0, currentGame.roundDuration - elapsed);
             const timeExpired = remaining <= 0;
 
-            // If time expired, calculate and send round results
+            // If time expired, check if it's the last round
             if (timeExpired) {
-              const currentQuestion = currentGame.currentQuestion;
+              const isLastRound =
+                currentGame.currentRound >= currentGame.totalRounds;
 
-              // Calculate scores for all players who answered
-              currentGame.answers.forEach((answerData, pid) => {
-                if (answerData.answer === currentQuestion.correctAnswer) {
-                  const player = db.players.get(pid);
-                  if (player) {
-                    player.score += 1;
-                  }
+              // If it's the last round and time expired, end the game and send final scores
+              if (isLastRound) {
+                const currentQuestion = currentGame.currentQuestion;
+                if (currentQuestion) {
+                  // Calculate final scores for all players who answered
+                  currentGame.answers.forEach((answerData, pid) => {
+                    if (answerData.answer === currentQuestion.correctAnswer) {
+                      const player = db.players.get(pid);
+                      if (player) {
+                        player.score += 1;
+                      }
+                    }
+                  });
                 }
-              });
 
-              // Include all players in results (those who answered and those who didn't)
-              const allAnswers = Array.from(currentGame.answers.entries()).map(
-                ([pid, ans]) => ({
+                // Mark game as finished
+                currentGame.status = "finished";
+
+                // Send game finished with final scores
+                ws.send(
+                  JSON.stringify({
+                    type: "game_finished",
+                    scores: currentGame.playerIds.map((id) => ({
+                      player: db.players.get(id),
+                      score: db.players.get(id)?.score || 0,
+                    })),
+                  }),
+                );
+                console.log(
+                  `📤 Sent game finished to reconnecting player - Round: ${currentGame.currentRound}/${currentGame.totalRounds} (last round, expired)`,
+                );
+              } else {
+                // Not last round, send round results
+                const currentQuestion = currentGame.currentQuestion;
+                if (!currentQuestion) {
+                  break;
+                }
+
+                // Calculate scores for all players who answered
+                currentGame.answers.forEach((answerData, pid) => {
+                  if (answerData.answer === currentQuestion.correctAnswer) {
+                    const player = db.players.get(pid);
+                    if (player) {
+                      player.score += 1;
+                    }
+                  }
+                });
+
+                // Include all players in results (those who answered and those who didn't)
+                const allAnswers = Array.from(
+                  currentGame.answers.entries(),
+                ).map(([pid, ans]) => ({
                   playerId: pid,
                   player: db.players.get(pid),
                   answer: ans.answer,
                   isCorrect: ans.answer === currentQuestion.correctAnswer,
-                }),
-              );
+                }));
 
-              // Add entries for players who didn't answer (answer: -1 means no answer)
-              currentGame.playerIds.forEach((pid) => {
-                if (!currentGame.answers.has(pid)) {
-                  allAnswers.push({
-                    playerId: pid,
-                    player: db.players.get(pid),
-                    answer: -1, // No answer submitted
-                    isCorrect: false,
-                  });
-                }
-              });
+                // Add entries for players who didn't answer (answer: -1 means no answer)
+                currentGame.playerIds.forEach((pid) => {
+                  if (!currentGame.answers.has(pid)) {
+                    allAnswers.push({
+                      playerId: pid,
+                      player: db.players.get(pid),
+                      answer: -1, // No answer submitted
+                      isCorrect: false,
+                    });
+                  }
+                });
 
-              // Send round results to reconnecting player
-              ws.send(
-                JSON.stringify({
-                  type: "round_results",
-                  round: currentGame.currentRound,
-                  correctAnswer: currentQuestion.correctAnswer,
-                  answers: allAnswers,
-                }),
-              );
-              console.log(
-                `📤 Sent round results to reconnecting player - Round: ${currentGame.currentRound} (expired, ${currentGame.answers.size}/${currentGame.playerIds.length} answered)`,
-              );
+                // Send round results to reconnecting player
+                ws.send(
+                  JSON.stringify({
+                    type: "round_results",
+                    round: currentGame.currentRound,
+                    correctAnswer: currentQuestion.correctAnswer,
+                    answers: allAnswers,
+                  }),
+                );
+                console.log(
+                  `📤 Sent round results to reconnecting player - Round: ${currentGame.currentRound} (expired, ${currentGame.answers.size}/${currentGame.playerIds.length} answered)`,
+                );
+              }
             } else {
               // Round still active or no answers yet, send current question
+              // Remove correctAnswer before sending to client
+              const sanitizedQuestion = currentGame.currentQuestion
+                ? sanitizeQuestionForClient(currentGame.currentQuestion)
+                : null;
+
               ws.send(
                 JSON.stringify({
                   type: "game_started",
                   round: currentGame.currentRound,
                   totalRounds: currentGame.totalRounds,
-                  question: currentGame.currentQuestion,
+                  question: sanitizedQuestion,
                   roundStartTime: currentGame.roundStartTime,
                   roundDuration: currentGame.roundDuration,
                   remainingTime: remaining, // Include remaining time for client
@@ -294,11 +445,18 @@ export function handleWebSocketConnection(
             startGame.roundStartTime = Date.now();
             startGame.roundDuration = ROUND_DURATION_MS;
 
+            // Start timer to automatically send results when round expires
+            startRoundTimer(gameId);
+
+            // Remove correctAnswer before sending to client
+            const sanitizedQuestion =
+              sanitizeQuestionForClient(randomizedQuestion);
+
             broadcastToGame(gameId, {
               type: "game_started",
               round: startGame.currentRound,
               totalRounds: startGame.totalRounds,
-              question: randomizedQuestion,
+              question: sanitizedQuestion,
               roundStartTime: startGame.roundStartTime,
               roundDuration: startGame.roundDuration,
             });
@@ -335,7 +493,23 @@ export function handleWebSocketConnection(
                 }
               });
 
-              // Send results using the randomized question's correct answer
+              // Stop the round timer since all players answered
+              stopRoundTimer(gameId);
+
+              // Check if this is the last round - if so, complete the game immediately
+              const isLastRound =
+                answerGame.currentRound >= answerGame.totalRounds;
+
+              if (isLastRound) {
+                // Last round complete - finish game and send final results immediately
+                const gameCompleted = checkAndCompleteGame(gameId, answerGame);
+                if (gameCompleted) {
+                  // Game is finished, no need to send round_results
+                  break;
+                }
+              }
+
+              // Not last round - send round results
               broadcastToGame(gameId, {
                 type: "round_results",
                 round: answerGame.currentRound,
@@ -350,8 +524,10 @@ export function handleWebSocketConnection(
                 ),
               });
 
-              // Clear answers for next round
-              answerGame.answers.clear();
+              // Clear answers for next round (if not finished)
+              if (!isLastRound) {
+                answerGame.answers.clear();
+              }
             } else {
               // Notify that answer was received
               broadcastToGame(gameId, {
@@ -413,15 +589,42 @@ export function handleWebSocketConnection(
               nextGame.roundStartTime = Date.now();
               nextGame.roundDuration = ROUND_DURATION_MS;
 
+              // Start timer to automatically send results when round expires
+              startRoundTimer(gameId);
+
+              // Remove correctAnswer before sending to client
+              const sanitizedQuestion =
+                sanitizeQuestionForClient(randomizedQuestion);
+
               broadcastToGame(gameId, {
                 type: "next_round",
                 round: nextGame.currentRound,
                 totalRounds: nextGame.totalRounds,
-                question: randomizedQuestion,
+                question: sanitizedQuestion,
                 roundStartTime: nextGame.roundStartTime,
                 roundDuration: nextGame.roundDuration,
               });
             }
+          }
+          break;
+        }
+
+        case "request_round_results": {
+          gameId = data.gameId;
+          const results = getRoundResults(gameId);
+          if (results) {
+            ws.send(JSON.stringify(results));
+            console.log(
+              `📤 Sent requested round results to player - Game: ${gameId}`,
+            );
+          } else {
+            // Round still active or no results available
+            ws.send(
+              JSON.stringify({
+                type: "error",
+                message: "Round is still active or results not available",
+              }),
+            );
           }
           break;
         }

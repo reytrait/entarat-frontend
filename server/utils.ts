@@ -53,3 +53,16 @@ export function getUnusedQuestion(
   const randomIndex = Math.floor(Math.random() * unusedQuestions.length);
   return unusedQuestions[randomIndex];
 }
+
+/**
+ * Removes the correctAnswer from a question object before sending to client.
+ * This prevents clients from knowing the answer before submitting their choice.
+ * @param question - The question object with correctAnswer
+ * @returns A question object without correctAnswer
+ */
+export function sanitizeQuestionForClient(
+  question: Question & { originalCorrectAnswer?: number },
+): Omit<Question, "correctAnswer"> & { originalCorrectAnswer?: number } {
+  const { correctAnswer: _correctAnswer, ...sanitized } = question;
+  return sanitized;
+}

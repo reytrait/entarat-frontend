@@ -5,6 +5,7 @@ import PlayFullBgSection from "@/app/components/PlayFullBgSection";
 import { Text } from "@/components/ui/text";
 import { GameArea } from "./GameArea";
 import { GameFinished } from "./GameFinished";
+import { GameSummary } from "./GameSummary";
 import { PlayersPanel } from "./PlayersPanel";
 import type { TriviaGameProps } from "./types";
 import { useTriviaGame } from "./useTriviaGame";
@@ -49,12 +50,46 @@ export function TriviaGame({ gameId }: TriviaGameProps) {
   }
 
   // Show game finished screen when game is complete
-  if (gameState.isFinished && gameState.finalScores) {
-    return (
-      <PlayFullBgSection>
-        <GameFinished gameState={gameState} />
-      </PlayFullBgSection>
-    );
+  // Also show if last round expired on resume (waiting for final scores)
+  if (
+    (gameState.isFinished && gameState.finalScores) ||
+    (gameState.round >= gameState.totalRounds &&
+      gameState.timeExpired &&
+      !gameState.question)
+  ) {
+    // If we have final scores, show them. Otherwise show loading state
+    if (gameState.finalScores && gameState.finalScores.length > 0) {
+      // If summary is available, show detailed summary page
+      if (gameState.summary) {
+        return (
+          <PlayFullBgSection>
+            <GameSummary summary={gameState.summary} />
+          </PlayFullBgSection>
+        );
+      }
+      // Otherwise show simple finished screen
+      return (
+        <PlayFullBgSection>
+          <GameFinished gameState={gameState} />
+        </PlayFullBgSection>
+      );
+    } else {
+      // Waiting for final scores from server
+      return (
+        <PlayFullBgSection>
+          <div className="flex min-h-screen items-center justify-center">
+            <div className="text-center">
+              <Text variant="h2" textColor="white" className="mb-4">
+                Game Ended
+              </Text>
+              <Text variant="body" textColor="white" className="opacity-80">
+                Calculating final scores...
+              </Text>
+            </div>
+          </div>
+        </PlayFullBgSection>
+      );
+    }
   }
 
   return (

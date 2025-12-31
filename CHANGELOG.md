@@ -27,7 +27,15 @@ This document tracks all major changes and features implemented in the Entarat t
 - **Server-side timestamp tracking**: Server tracks when each round starts
 - **Reconnection support**: On page refresh, current question and remaining time are sent to reconnecting players
 - **Progress synchronization**: Progress bar and countdown sync correctly after reconnection
-- **Round duration management**: Centralized round duration constant (30 seconds default)
+- **Round duration management**: Centralized round duration constant (10 seconds default)
+- **Automatic result sending**: Server automatically sends round results when time expires
+- **Result request mechanism**: Clients can request round results if not received automatically
+- **Last round handling**: On resume to expired last round, game immediately shows final summary
+
+### Security & Anti-Cheating
+- **Answer hiding**: Correct answer is never sent to clients until after they submit their answer
+- **Question sanitization**: Server removes `correctAnswer` from questions before sending to clients
+- **Results-only disclosure**: Correct answer only revealed in `round_results` message after answers are submitted
 
 ## Technical Implementation
 
@@ -37,12 +45,19 @@ This document tracks all major changes and features implemented in the Entarat t
 - `server/utils.ts`: Utility functions for question randomization and selection
   - `randomizeQuestionOptions()`: Shuffles options and updates correct answer index
   - `getUnusedQuestion()`: Selects unused questions to prevent repeats
+  - `sanitizeQuestionForClient()`: Removes `correctAnswer` from questions before sending to clients
+
+- `server/round-timer.ts`: Automatic round timer management
+  - `startRoundTimer()`: Starts timer that automatically sends results when round expires
+  - `stopRoundTimer()`: Stops timer when all players answer early
+  - `getRoundResults()`: Returns round results on demand for client requests
 
 #### Modified Files
 
 **`server/types.ts`**
 - Added `usedQuestionIds: number[]` to `Game` type to track used questions
 - Added `roundDuration: number` to track round duration
+- Added `RequestRoundResultsMessage` type for client result requests
 
 **`server/websocket.ts`**
 - Implemented question randomization on `start_game` and `next_round`
@@ -50,6 +65,11 @@ This document tracks all major changes and features implemented in the Entarat t
 - Enforced round limit based on available questions
 - Updated scoring to use randomized question's correct answer index
 - Added round timestamp tracking for reconnection support
+- Integrated automatic round timer that sends results when time expires
+- Added `request_round_results` message handler for client requests
+- Sanitizes questions (removes `correctAnswer`) before sending to clients
+- Stops round timer when all players answer early
+- Handles last round expiration by sending `game_finished` instead of `round_results`
 
 **`server/db.ts`**
 - Contains question database (currently 3 sample questions)
@@ -63,6 +83,7 @@ This document tracks all major changes and features implemented in the Entarat t
 - Added `isFinished?: boolean` to `GameState`
 - Added `finalScores?: Array<{player: Player | undefined; score: number}>`
 - Added `timeExpired?: boolean` to track time expiration
+- Made `correctAnswer` optional in `Question` type (not sent from server until results)
 
 **`src/app/game/games/TriviaGame1/useTriviaGame.ts`**
 - Added `remainingTime` state to track countdown in seconds
@@ -71,10 +92,14 @@ This document tracks all major changes and features implemented in the Entarat t
 - Updated `handleAnswerSelect()` to prevent selection when time expired
 - Added `game_finished` handler to store final scores
 - Updated `round_results` handler to detect last round
+- Added automatic result request mechanism (requests results if not received within 1 second)
+- Handles last round expiration on resume by waiting for `game_finished` message
+- Cleans up result request timeouts when results arrive
 
 **`src/app/game/games/TriviaGame1/index.tsx`**
 - Added `GameFinished` component rendering when game is complete
 - Passes `remainingTime` to `GameArea` component
+- Shows loading state when waiting for final scores on last round expiration
 
 **`src/app/game/games/TriviaGame1/GameArea.tsx`**
 - Added countdown timer display with "Time's Up!" message
@@ -96,7 +121,7 @@ This document tracks all major changes and features implemented in the Entarat t
 ### Constants & Configuration
 
 **`src/lib/constants/game.ts`**
-- `ROUND_DURATION_MS = 30000` (30 seconds) - Single source of truth for round duration
+- `ROUND_DURATION_MS = 10000` (10 seconds) - Single source of truth for round duration
 - `PROGRESS_UPDATE_INTERVAL_MS = 100` - Progress bar update frequency
 
 ## Game Flow
@@ -111,7 +136,7 @@ This document tracks all major changes and features implemented in the Entarat t
    - Options randomized
    - Correct answer index updated
    - Question marked as used
-   - Timer starts (30 seconds)
+   - Timer starts (10 seconds)
 
 3. **During Round**:
    - Countdown timer displays remaining seconds
@@ -143,6 +168,16 @@ This document tracks all major changes and features implemented in the Entarat t
   - Client calculates remaining time
   - Progress bar and countdown sync correctly
   - If time expired, timer stops and answers disabled
+  - Client automatically requests results if not received within 1 second
+  - Last round expiration immediately shows game finished summary
+
+## Automatic Result Management
+
+- **Timer-based sending**: Server starts a timer when each round begins
+- **Automatic expiration**: When timer expires, server automatically calculates and sends results
+- **Early completion**: If all players answer before time expires, timer is stopped and results sent immediately
+- **Client fallback**: If client doesn't receive results automatically, it requests them after 1 second
+- **Last round handling**: Expired last round triggers `game_finished` instead of `round_results`
 
 ## Answer Verification
 
@@ -151,6 +186,8 @@ This document tracks all major changes and features implemented in the Entarat t
 - Correct answer index updated to match new position (e.g., `correctAnswer: 1`)
 - Player answers are checked against the new randomized index
 - Scoring works correctly regardless of option order
+- **Security**: `correctAnswer` is never sent to clients until after they submit their answer
+- Clients only receive `correctAnswer` in `round_results` message after answers are submitted
 
 ## Database Structure
 

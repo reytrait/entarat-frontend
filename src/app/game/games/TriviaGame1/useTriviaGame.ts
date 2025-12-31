@@ -5,7 +5,7 @@ import {
   ROUND_DURATION_MS,
 } from "@/lib/constants/game";
 import { getDeviceId, getPlayerId } from "@/lib/utils";
-import type { GameState, Player, Question } from "./types";
+import type { GameState, GameSummary, Player, Question } from "./types";
 
 const QUESTION_DURATION = ROUND_DURATION_MS;
 const PROGRESS_INTERVAL = PROGRESS_UPDATE_INTERVAL_MS;
@@ -31,6 +31,7 @@ export function useTriviaGame(gameId: string) {
   const [connectionError, setConnectionError] = useState<string | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
   const progressIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const requestResultsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const hasJoinedRef = useRef(false);
   const isMountedRef = useRef(true);
 
@@ -242,34 +243,81 @@ export function useTriviaGame(gameId: string) {
               gameStartedData.remainingTime !== undefined &&
               gameStartedData.remainingTime <= 0;
 
-            // If time expired on resume, request round results or show summary
+            // If time expired on resume, check if it's the last round
             if (timeExpired) {
-              // Don't show the question, wait for round_results
-              // The server should send round_results if available
+              const isLastRound =
+                gameStartedData.round >= gameStartedData.totalRounds;
+
               stopProgressTimer();
               setRemainingTime(0);
               setProgress(100);
 
-              // Set state to show that we're waiting for results
-              setGameState((prev) => ({
-                ...prev,
-                round: gameStartedData.round,
-                totalRounds: gameStartedData.totalRounds,
-                question: gameStartedData.question, // Keep question for context
-                timeExpired: true,
-                showResults: false, // Will be set to true when round_results arrives
-              }));
+              // If it's the last round, wait for game_finished message
+              // Otherwise, wait for round_results
+              if (isLastRound) {
+                // Last round expired - wait for game_finished
+                setGameState((prev) => ({
+                  ...prev,
+                  round: gameStartedData.round,
+                  totalRounds: gameStartedData.totalRounds,
+                  question: null, // Don't show question for last round
+                  timeExpired: true,
+                  showResults: false,
+                  isFinished: false, // Will be set to true when game_finished arrives
+                }));
+                console.log(
+                  "Last round expired on resume, waiting for game_finished...",
+                );
 
-              // Request round results if not received within a short time
-              // (Server should send it, but this is a fallback)
-              setTimeout(() => {
-                if (wsRef.current?.readyState === WebSocket.OPEN) {
-                  // Server should have already sent results, but we can log if not
-                  console.log(
-                    "Waiting for round results after expired round...",
-                  );
+                // Request game finished results if not received within 1 second
+                if (requestResultsTimeoutRef.current) {
+                  clearTimeout(requestResultsTimeoutRef.current);
                 }
-              }, 500);
+                requestResultsTimeoutRef.current = setTimeout(() => {
+                  if (wsRef.current?.readyState === WebSocket.OPEN) {
+                    console.log(
+                      "Requesting game finished results from server...",
+                    );
+                    wsRef.current.send(
+                      JSON.stringify({
+                        type: "request_round_results",
+                        gameId: gameId,
+                      }),
+                    );
+                  }
+                  requestResultsTimeoutRef.current = null;
+                }, 1000);
+              } else {
+                // Not last round - wait for round_results
+                setGameState((prev) => ({
+                  ...prev,
+                  round: gameStartedData.round,
+                  totalRounds: gameStartedData.totalRounds,
+                  question: gameStartedData.question, // Keep question for context
+                  timeExpired: true,
+                  showResults: false, // Will be set to true when round_results arrives
+                }));
+                console.log(
+                  "Round expired on resume, waiting for round_results...",
+                );
+
+                // Request round results if not received within 1 second
+                if (requestResultsTimeoutRef.current) {
+                  clearTimeout(requestResultsTimeoutRef.current);
+                }
+                requestResultsTimeoutRef.current = setTimeout(() => {
+                  if (wsRef.current?.readyState === WebSocket.OPEN) {
+                    console.log("Requesting round results from server...");
+                    wsRef.current.send(
+                      JSON.stringify({
+                        type: "request_round_results",
+                        gameId: gameId,
+                      }),
+                    );
+                  }
+                  requestResultsTimeoutRef.current = null;
+                }, 1000);
+              }
             } else {
               // Round still active, show question and start timer
               setGameState((prev) => ({
@@ -366,11 +414,18 @@ export function useTriviaGame(gameId: string) {
             break;
 
           case "game_finished": {
+            // Clear the request timeout since we received final scores
+            if (requestResultsTimeoutRef.current) {
+              clearTimeout(requestResultsTimeoutRef.current);
+              requestResultsTimeoutRef.current = null;
+            }
+
             const gameFinishedData = data as {
               scores: Array<{
                 player: Player | undefined;
                 score: number;
               }>;
+              summary?: GameSummary;
             };
             setGameState((prev) => ({
               ...prev,
@@ -378,6 +433,7 @@ export function useTriviaGame(gameId: string) {
               showResults: false,
               question: null,
               finalScores: gameFinishedData.scores || [],
+              summary: gameFinishedData.summary,
             }));
             stopProgressTimer();
             setRemainingTime(null);
@@ -422,6 +478,12 @@ export function useTriviaGame(gameId: string) {
       console.log("🔴 Effect cleanup called");
       isMountedRef.current = false;
       stopProgressTimer();
+
+      // Clear request timeout
+      if (requestResultsTimeoutRef.current) {
+        clearTimeout(requestResultsTimeoutRef.current);
+        requestResultsTimeoutRef.current = null;
+      }
 
       // In React Strict Mode, cleanup runs immediately before re-mount
       // Add a small delay to allow the re-mounted effect to see the existing connection

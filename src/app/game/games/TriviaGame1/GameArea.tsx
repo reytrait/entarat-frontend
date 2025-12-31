@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { useEffect, useState } from "react";
 import { EntaratBtn } from "@/components/ui/entarat-btn";
 import { Text } from "@/components/ui/text";
 import { SITE_CONFIG } from "@/lib/constants";
@@ -20,6 +21,14 @@ export function GameArea({
   onAnswerSelect,
   onNextRound,
 }: GameAreaProps) {
+  const [imageError, setImageError] = useState(false);
+
+  // Reset image error when question changes
+  useEffect(() => {
+    if (gameState.question?.id !== undefined) {
+      setImageError(false);
+    }
+  }, [gameState.question]);
   return (
     <div className="lg:col-span-3">
       {/* Header */}
@@ -86,19 +95,35 @@ export function GameArea({
             {gameState.question.question}
           </Text>
 
-          {/* Question Image Placeholder */}
-          <div className="mb-6 flex justify-center">
-            <div className="relative h-64 w-full max-w-md overflow-hidden rounded-lg bg-gray-800">
-              <div className="flex h-full items-center justify-center">
+          {/* Question Image */}
+          {gameState.question.image && !imageError ? (
+            <div className="mb-6 flex justify-center">
+              <div className="relative h-64 w-full max-w-md overflow-hidden rounded-lg bg-gray-800">
                 <Image
                   src={gameState.question.image}
                   alt={gameState.question.question}
                   fill
                   className="object-cover"
+                  onError={() => setImageError(true)}
+                  unoptimized
                 />
               </div>
             </div>
-          </div>
+          ) : gameState.question.image && imageError ? (
+            <div className="mb-6 flex justify-center">
+              <div className="relative h-64 w-full max-w-md overflow-hidden rounded-lg bg-gray-800">
+                <div className="flex h-full items-center justify-center p-4">
+                  <Text
+                    variant="small"
+                    textColor="white"
+                    className="opacity-50 break-all text-center"
+                  >
+                    {gameState.question.image}
+                  </Text>
+                </div>
+              </div>
+            </div>
+          ) : null}
 
           {/* Answer Options */}
           <div className="grid grid-cols-2 gap-4">
