@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import type { WebSocket } from "ws";
-import type { DatabaseService } from "../database/database.service";
-import type { GameService } from "./game.service";
+import { DatabaseService } from "../database/database.service";
+import { GameService } from "./game.service";
 
 @Injectable()
 export class RoundTimerService {

@@ -1,6 +1,6 @@
 import { Injectable, type OnModuleInit } from "@nestjs/common";
-import type { RedisService } from "../redis/redis.service";
 import type { Game, Player, Question } from "../types/game";
+import { RedisService } from "../redis/redis.service";
 
 @Injectable()
 export class DatabaseService implements OnModuleInit {

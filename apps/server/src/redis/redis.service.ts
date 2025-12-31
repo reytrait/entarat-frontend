@@ -8,40 +8,112 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
   private client: Redis | null = null;
   private subscriber: Redis | null = null;
   private publisher: Redis | null = null;
+  private connectionAttempted = false;
+  private connectionFailed = false;
 
   async onModuleInit() {
-    const redisUrl = process.env.REDIS_URL || "redis://localhost:6379";
+    // Only attempt Redis connection if explicitly configured
+    const redisUrl = process.env.REDIS_URL;
+    
+    if (!redisUrl) {
+      // Redis is optional - no warning if not configured
+      this.logger.log("ℹ️  Redis not configured - using in-memory storage");
+      return;
+    }
     
     try {
       // Main client for general operations
       this.client = new Redis(redisUrl, {
         retryStrategy: (times) => {
-          const delay = Math.min(times * 50, 2000);
+          // Stop retrying after 3 attempts
+          if (times > 3) {
+            this.connectionFailed = true;
+            return null; // Stop retrying
+          }
+          const delay = Math.min(times * 50, 1000);
           return delay;
         },
         maxRetriesPerRequest: 3,
+        enableOfflineQueue: false, // Don't queue commands when offline
+        lazyConnect: true, // Don't connect immediately
       });
 
       // Subscriber for pub/sub (if needed for multi-instance deployments)
-      this.subscriber = new Redis(redisUrl);
+      this.subscriber = new Redis(redisUrl, {
+        retryStrategy: () => null, // Don't retry subscriber
+        enableOfflineQueue: false,
+        lazyConnect: true,
+      });
       
       // Publisher for pub/sub
-      this.publisher = new Redis(redisUrl);
+      this.publisher = new Redis(redisUrl, {
+        retryStrategy: () => null, // Don't retry publisher
+        enableOfflineQueue: false,
+        lazyConnect: true,
+      });
+
+      // Suppress unhandled error events
+      const suppressError = () => {
+        // Errors are already handled, suppress unhandled error events
+      };
 
       this.client.on("connect", () => {
         this.logger.log("✅ Redis connected");
+        this.connectionFailed = false;
       });
 
-      this.client.on("error", (error) => {
-        this.logger.error("❌ Redis error:", error);
+      this.client.on("error", () => {
+        // Suppress error messages - we'll handle connection failure in the catch block
       });
+
+      this.client.on("close", () => {
+        // Suppress close messages - we'll handle connection failure in the catch block
+      });
+
+      // Suppress errors on subscriber and publisher
+      this.subscriber.on("error", suppressError);
+      this.publisher.on("error", suppressError);
+
+      // Try to connect with timeout
+      this.connectionAttempted = true;
+      await Promise.race([
+        this.client.connect(),
+        new Promise((_, reject) => 
+          setTimeout(() => reject(new Error("Connection timeout")), 2000)
+        ),
+      ]);
 
       // Test connection
       await this.client.ping();
       this.logger.log("✅ Redis connection verified");
     } catch (error) {
-      this.logger.error("❌ Failed to connect to Redis:", error);
-      this.logger.warn("⚠️  Continuing without Redis - using in-memory storage only");
+      this.connectionFailed = true;
+      this.logger.warn(`⚠️  Redis connection failed (${redisUrl}) - using in-memory storage`);
+      // Clean up failed connections
+      if (this.client) {
+        try {
+          await this.client.quit();
+        } catch {
+          // Ignore cleanup errors
+        }
+        this.client = null;
+      }
+      if (this.subscriber) {
+        try {
+          await this.subscriber.quit();
+        } catch {
+          // Ignore cleanup errors
+        }
+        this.subscriber = null;
+      }
+      if (this.publisher) {
+        try {
+          await this.publisher.quit();
+        } catch {
+          // Ignore cleanup errors
+        }
+        this.publisher = null;
+      }
     }
   }
 
@@ -61,7 +133,7 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
    * Check if Redis is available
    */
   isAvailable(): boolean {
-    return this.client?.status === "ready";
+    return !this.connectionFailed && this.client?.status === "ready";
   }
 
   /**
