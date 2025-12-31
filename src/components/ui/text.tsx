@@ -52,8 +52,17 @@ const textVariants = cva("m-0", {
 
 export interface TextProps
   extends React.HTMLAttributes<HTMLElement>,
-    VariantProps<typeof textVariants> {
+    Omit<VariantProps<typeof textVariants>, "textColor"> {
   as?: "h1" | "h2" | "h3" | "h4" | "p" | "span" | "div";
+  textColor?:
+    | "default"
+    | "white"
+    | "muted"
+    | "white/90"
+    | "white/80"
+    | "white/60"
+    | "yellow"
+    | string; // Allow any string for custom Tailwind color classes
 }
 
 const Text = React.forwardRef<HTMLElement, TextProps>(
@@ -82,17 +91,38 @@ const Text = React.forwardRef<HTMLElement, TextProps>(
       variant === "h4"
         ? "bold"
         : undefined;
+
+    // Check if textColor is a predefined variant
+    const predefinedColors = [
+      "default",
+      "white",
+      "muted",
+      "white/90",
+      "white/80",
+      "white/60",
+      "yellow",
+    ];
+    const isPredefinedColor = textColor && predefinedColors.includes(textColor);
+
+    // Use variant system for predefined colors, otherwise apply directly
+    const colorClass = isPredefinedColor
+      ? undefined // Will be handled by textVariants
+      : textColor; // Apply custom color class directly
+
     return (
       <Component
         className={cn(
           textVariants({
             variant,
-            textColor,
+            textColor: isPredefinedColor
+              ? (textColor as VariantProps<typeof textVariants>["textColor"])
+              : undefined,
             align,
             weight: finalWeight,
             leading,
-            className,
           }),
+          colorClass, // Apply custom color class if not predefined
+          className,
         )}
         {...(ref && { ref: ref as never })}
         {...props}

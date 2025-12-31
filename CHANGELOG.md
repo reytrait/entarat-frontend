@@ -62,6 +62,7 @@ All changes are listed with timestamps in reverse chronological order (newest fi
 - Updated `index.tsx` to show `GameSummary` component when summary is available
 - Added auto-play functionality with 3-second delay after round results
 - Added `yellow` text color variant to Text component for winner highlighting
+- Made `textColor` prop flexible to accept any Tailwind color class (e.g., `textColor="text-blue-500"`, `textColor="text-red-600"`) while maintaining predefined variants for convenience (2025-12-31)
 - Added `autoPlayTimeoutRef` to track auto-play timeout
 - Added `autoPlayRef` to track current autoplay state without dependency issues
 - Auto-play automatically sends `next_round` event when enabled and round results received
