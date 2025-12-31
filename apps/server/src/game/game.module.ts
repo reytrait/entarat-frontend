@@ -1,4 +1,4 @@
-import { Module, forwardRef } from "@nestjs/common";
+import { Module, forwardRef, Inject } from "@nestjs/common";
 import { DatabaseModule } from "../database/database.module";
 import { DatabaseService } from "../database/database.service";
 import { GameController } from "./game.controller";

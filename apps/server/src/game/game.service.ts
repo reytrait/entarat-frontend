@@ -19,7 +19,7 @@ export class GameService {
     private readonly gameUtils: GameUtilsService,
   ) {}
 
-  handleJoin(
+  async handleJoin(
     data: JoinMessage,
     client: WebSocket,
     connections: Map<string, WebSocket>,
@@ -28,15 +28,19 @@ export class GameService {
     const playerId = data.playerId;
 
     // Check if device already has a player in this game
-    const game = this.databaseService.games.get(gameId);
+    const game = await this.databaseService.getGame(gameId);
     if (game) {
-      const existingPlayerWithDevice = game.playerIds.find((pid) => {
-        const player = this.databaseService.players.get(pid);
-        return player?.deviceId === data.deviceId;
-      });
+      let existingPlayerWithDevice: string | undefined;
+      for (const pid of game.playerIds) {
+        const player = await this.databaseService.getPlayer(pid);
+        if (player?.deviceId === data.deviceId) {
+          existingPlayerWithDevice = pid;
+          break;
+        }
+      }
 
       if (existingPlayerWithDevice) {
-        const existingPlayer = this.databaseService.players.get(
+        const existingPlayer = await this.databaseService.getPlayer(
           existingPlayerWithDevice,
         );
         console.log(

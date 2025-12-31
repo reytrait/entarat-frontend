@@ -1,154 +1,173 @@
-import { Injectable, OnModuleInit } from "@nestjs/common";
-import { WebSocketServer } from "@nestjs/platform-ws";
-import { Server, WebSocket } from "ws";
+import { Injectable, type OnModuleInit } from "@nestjs/common";
+import type { Server, WebSocket } from "ws";
+import type { DatabaseService } from "../database/database.service";
 import type { JoinMessage } from "../types/game";
-import { DatabaseService } from "../database/database.service";
-import { GameService } from "./game.service";
-import { RoundTimerService } from "./round-timer.service";
+import type { GameService } from "./game.service";
+import type { RoundTimerService } from "./round-timer.service";
 
 @Injectable()
 export class GameGateway implements OnModuleInit {
-  @WebSocketServer()
-  server: Server;
+	server: Server | null = null;
 
-  private connections = new Map<string, WebSocket>();
+	private connections = new Map<string, WebSocket>();
 
-  constructor(
-    private readonly databaseService: DatabaseService,
-    private readonly gameService: GameService,
-    private readonly roundTimerService: RoundTimerService,
-  ) {}
+	constructor(
+		private readonly databaseService: DatabaseService,
+		private readonly gameService: GameService,
+		private readonly roundTimerService: RoundTimerService,
+	) {}
 
-  onModuleInit() {
-    this.server.on("connection", (client: WebSocket) => {
-      this.handleConnection(client);
-    });
-  }
+	onModuleInit() {
+		// Server will be set externally via setServer method
+	}
 
-  private handleConnection(client: WebSocket) {
-    console.log("🔌 Client connected");
+	setServer(server: Server) {
+		this.server = server;
+		this.server.on("connection", (client: WebSocket) => {
+			this.handleConnection(client);
+		});
+	}
 
-    client.on("message", (message: WebSocket.RawData) => {
-      try {
-        const data = JSON.parse(message.toString());
-        this.handleMessage(data, client);
-      } catch (error) {
-        console.error("Error parsing WebSocket message:", error);
-        client.send(
-          JSON.stringify({
-            type: "error",
-            message: "Invalid message format",
-          }),
-        );
-      }
-    });
+	private handleConnection(client: WebSocket) {
+		console.log("🔌 Client connected");
 
-    client.on("close", () => {
-      this.handleDisconnect(client);
-    });
+		client.on("message", (message: Buffer) => {
+			try {
+				const data = JSON.parse(message.toString());
+				this.handleMessage(data, client);
+			} catch (error) {
+				console.error("Error parsing WebSocket message:", error);
+				client.send(
+					JSON.stringify({
+						type: "error",
+						message: "Invalid message format",
+					}),
+				);
+			}
+		});
 
-    client.on("error", (error) => {
-      console.error("WebSocket error:", error);
-    });
-  }
+		client.on("close", () => {
+			this.handleDisconnect(client);
+		});
 
-  private handleDisconnect(client: WebSocket) {
-    // Find and remove connection
-    for (const [playerId, ws] of this.connections.entries()) {
-      if (ws === client) {
-        this.connections.delete(playerId);
-        this.handlePlayerLeave(playerId);
-        break;
-      }
-    }
-    console.log("🔌 Client disconnected");
-  }
+		client.on("error", (error) => {
+			console.error("WebSocket error:", error);
+		});
+	}
 
-  private async handleMessage(data: any, client: WebSocket) {
-    try {
-      switch (data.type) {
-        case "join":
-          await this.gameService.handleJoin(
-            data as JoinMessage,
-            client,
-            this.connections,
-          );
-          break;
-        case "start_game":
-          await this.gameService.handleStartGame(
-            data.gameId,
-            this.connections,
-            this.roundTimerService,
-          );
-          break;
-        case "submit_answer":
-          await this.gameService.handleSubmitAnswer(
-            data.gameId,
-            data.answer,
-            client,
-            this.connections,
-            this.roundTimerService,
-          );
-          break;
-        case "next_round":
-          await this.gameService.handleNextRound(
-            data.gameId,
-            this.connections,
-            this.roundTimerService,
-          );
-          break;
-        case "request_round_results":
-          await this.gameService.handleRequestRoundResults(
-            data.gameId,
-            client,
-            this.connections,
-            this.roundTimerService,
-          );
-          break;
-        default:
-          console.warn("Unknown message type:", data.type);
-          client.send(
-            JSON.stringify({
-              type: "error",
-              message: `Unknown message type: ${data.type}`,
-            }),
-          );
-      }
-    } catch (error) {
-      console.error("Error handling message:", error);
-      client.send(
-        JSON.stringify({
-          type: "error",
-          message: error instanceof Error ? error.message : "Unknown error",
-        }),
-      );
-    }
-  }
+	private handleDisconnect(client: WebSocket) {
+		// Find and remove connection
+		for (const [playerId, ws] of this.connections.entries()) {
+			if (ws === client) {
+				this.connections.delete(playerId);
+				void this.handlePlayerLeave(playerId);
+				break;
+			}
+		}
+		console.log("🔌 Client disconnected");
+	}
 
-  private handlePlayerLeave(playerId: string) {
-    const player = this.databaseService.players.get(playerId);
-    if (!player) return;
+	private async handleMessage(data: unknown, client: WebSocket) {
+		try {
+			if (!data || typeof data !== "object" || !("type" in data)) {
+				throw new Error("Invalid message format");
+			}
 
-    const game = this.databaseService.games.get(player.gameId);
-    if (!game) return;
+			const message = data as { type: string; [key: string]: unknown };
 
-    // Remove player from game
-    const index = game.playerIds.indexOf(playerId);
-    if (index > -1) {
-      game.playerIds.splice(index, 1);
-    }
+			switch (message.type) {
+				case "join":
+					await this.gameService.handleJoin(
+						message as JoinMessage,
+						client,
+						this.connections,
+					);
+					break;
+				case "start_game":
+					if (typeof message.gameId === "string") {
+						await this.gameService.handleStartGame(
+							message.gameId,
+							this.connections,
+							this.roundTimerService,
+						);
+					}
+					break;
+				case "submit_answer":
+					if (
+						typeof message.gameId === "string" &&
+						typeof message.answer === "number"
+					) {
+						await this.gameService.handleSubmitAnswer(
+							message.gameId,
+							message.answer,
+							client,
+							this.connections,
+							this.roundTimerService,
+						);
+					}
+					break;
+				case "next_round":
+					if (typeof message.gameId === "string") {
+						await this.gameService.handleNextRound(
+							message.gameId,
+							this.connections,
+							this.roundTimerService,
+						);
+					}
+					break;
+				case "request_round_results":
+					if (typeof message.gameId === "string") {
+						await this.gameService.handleRequestRoundResults(
+							message.gameId,
+							client,
+							this.connections,
+							this.roundTimerService,
+						);
+					}
+					break;
+				default:
+					console.warn("Unknown message type:", message.type);
+					client.send(
+						JSON.stringify({
+							type: "error",
+							message: `Unknown message type: ${message.type}`,
+						}),
+					);
+			}
+		} catch (error) {
+			console.error("Error handling message:", error);
+			client.send(
+				JSON.stringify({
+					type: "error",
+					message: error instanceof Error ? error.message : "Unknown error",
+				}),
+			);
+		}
+	}
 
-    // Broadcast updated player list
-    this.gameService.broadcastToGame(
-      player.gameId,
-      {
-        type: "player_left",
-        playerId,
-        players: this.gameService.getLimitedPlayersList(game.playerIds).players,
-        totalPlayers: game.playerIds.length,
-      },
-      this.connections,
-    );
-  }
+	private async handlePlayerLeave(playerId: string) {
+		const player = await this.databaseService.getPlayer(playerId);
+		if (!player) return;
+
+		const game = await this.databaseService.getGame(player.gameId);
+		if (!game) return;
+
+		// Remove player from game
+		const index = game.playerIds.indexOf(playerId);
+		if (index > -1) {
+			game.playerIds.splice(index, 1);
+		}
+
+		// Broadcast updated player list
+		this.gameService.broadcastToGame(
+			player.gameId,
+			{
+				type: "player_left",
+				playerId,
+				players: this.gameService.getLimitedPlayersList(game.playerIds).players,
+				totalPlayers: game.playerIds.length,
+			},
+			this.connections,
+		);
+	}
 }
-
