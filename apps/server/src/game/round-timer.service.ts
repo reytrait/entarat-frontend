@@ -192,7 +192,7 @@ export class RoundTimerService {
 
     // Calculate scores for all players who answered
     for (const [pid, answerData] of game.answers.entries()) {
-      if (answerData.answer === game.currentQuestion!.correctAnswer) {
+      if (answerData.answer === game.currentQuestion?.correctAnswer) {
         const player = await this.databaseService.getPlayer(pid);
         if (player) {
           player.score += 1;
@@ -224,7 +224,7 @@ export class RoundTimerService {
       playerId: pid,
       player: this.databaseService.players.get(pid),
       answer: ans.answer,
-      isCorrect: ans.answer === game.currentQuestion!.correctAnswer,
+      isCorrect: ans.answer === game.currentQuestion?.correctAnswer,
     }));
 
     // Add entries for players who didn't answer
@@ -251,7 +251,7 @@ export class RoundTimerService {
       game.answers.forEach((answerData, pid) => {
         playerAnswers.set(pid, {
           answer: answerData.answer,
-          isCorrect: answerData.answer === game.currentQuestion!.correctAnswer,
+          isCorrect: answerData.answer === game.currentQuestion?.correctAnswer,
           timestamp: answerData.timestamp,
         });
       });
@@ -266,7 +266,7 @@ export class RoundTimerService {
       });
       game.roundHistory.push({
         round: game.currentRound,
-        question: game.currentQuestion!,
+        question: game.currentQuestion,
         playerAnswers,
       });
     }

@@ -1,6 +1,6 @@
-import { createServer } from "http";
+import { createServer } from "node:http";
+import { parse } from "node:url";
 import next from "next";
-import { parse } from "url";
 import { WebSocket, WebSocketServer } from "ws";
 import { WSMsgType } from "./src/types/game";
 

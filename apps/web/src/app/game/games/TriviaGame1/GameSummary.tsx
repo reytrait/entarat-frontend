@@ -120,9 +120,9 @@ export function GameSummary({ summary }: GameSummaryProps) {
             Questions Breakdown
           </Text>
           <div className="space-y-6">
-            {summary.questions.map((q, questionIndex) => {
+            {summary.questions.map((q, _questionIndex) => {
               const roundStat = summary.playerStats[0]; // Get first player's answers for reference
-              const playerAnswer = roundStat?.answers.find(
+              const _playerAnswer = roundStat?.answers.find(
                 (a) => a.round === q.round,
               );
 
@@ -171,7 +171,7 @@ export function GameSummary({ summary }: GameSummaryProps) {
                         const isCorrect = optIndex === q.correctAnswer;
                         return (
                           <div
-                            key={optIndex}
+                            key={option}
                             className={`rounded-md border-2 p-2 ${
                               isCorrect
                                 ? "border-green-500 bg-green-500/20"

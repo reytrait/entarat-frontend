@@ -53,7 +53,7 @@ export class GameUtilsService {
     availableQuestions: Question[],
     usedQuestionIds: number[],
   ): (Question & { originalCorrectAnswer: number }) | null {
-    const unusedQuestions = this.databaseService.questions.filter(
+    const unusedQuestions = availableQuestions.filter(
       (q) => !usedQuestionIds.includes(q.id),
     );
 

@@ -6,7 +6,6 @@ import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { useGameSetup } from "../../components/game-setup-provider";
-import { Ellipse } from "../../components/ui/ellipse";
 import { EntaratBtn } from "../../components/ui/entarat-btn";
 import {
   Form,
@@ -314,7 +313,7 @@ export default function GameSetupPage() {
                                 onChange={(e) => {
                                   const newValue = Math.max(
                                     1,
-                                    parseInt(e.target.value) || 1,
+                                    parseInt(e.target.value, 10) || 1,
                                   );
                                   field.onChange(newValue);
                                   setNumPlayers(newValue);
@@ -368,7 +367,7 @@ export default function GameSetupPage() {
                                 onChange={(e) => {
                                   const newValue = Math.max(
                                     1,
-                                    parseInt(e.target.value) || 1,
+                                    parseInt(e.target.value, 10) || 1,
                                   );
                                   field.onChange(newValue);
                                   setRounds(newValue);
@@ -412,7 +411,7 @@ export default function GameSetupPage() {
                                 onChange={(e) => {
                                   const newValue = Math.max(
                                     1,
-                                    parseInt(e.target.value) || 1,
+                                    parseInt(e.target.value, 10) || 1,
                                   );
                                   field.onChange(newValue);
                                   setPlayTime(newValue);
