@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { forwardRef, Inject, Injectable } from "@nestjs/common";
 import { WebSocket } from "ws";
 import { DatabaseService } from "../database/database.service";
 import {
@@ -9,15 +9,17 @@ import {
   Question,
   WSMsgType,
 } from "../types/game";
-import { ROUND_DURATION_MS } from "./constants";
 import { GameUtilsService } from "./game-utils.service";
 import { RoundTimerService } from "./round-timer.service";
+import { ROUND_DURATION_MS   } from "./constants";
 
 @Injectable()
 export class GameService {
   constructor(
     private readonly databaseService: DatabaseService,
     private readonly gameUtils: GameUtilsService,
+    @Inject(forwardRef(() => RoundTimerService)) private readonly roundTimerService: RoundTimerService,
+
   ) {}
 
   async handleJoin(
@@ -285,17 +287,12 @@ export class GameService {
     }
   }
 
-  handleStartGame(
-    gameId: string,
-    connections: Map<string, WebSocket>,
-    roundTimerService: RoundTimerService | null,
-  ) {
+  handleStartGame(gameId: string, connections: Map<string, WebSocket>) {
     const startGame = this.databaseService.games.get(gameId);
     if (!startGame) return;
 
-    if (!roundTimerService) {
+    if (!this.roundTimerService) {
       console.error("RoundTimerService is not available");
-      return;
     }
 
     startGame.status = "playing";
@@ -337,9 +334,7 @@ export class GameService {
     startGame.roundDuration = ROUND_DURATION_MS;
 
     // Start timer to automatically send results when round expires
-    if (roundTimerService) {
-      roundTimerService.startRoundTimer(gameId, connections);
-    }
+    this.roundTimerService?.startRoundTimer(gameId, connections);
 
     // Remove correctAnswer before sending to client
     const sanitizedQuestion =
@@ -364,7 +359,6 @@ export class GameService {
     answer: number,
     client: WebSocket,
     connections: Map<string, WebSocket>,
-    roundTimerService: RoundTimerService | null,
   ) {
     const answerGame = this.databaseService.games.get(gameId);
     if (!answerGame) return;
@@ -406,7 +400,7 @@ export class GameService {
       });
 
       // Stop the round timer since all players answered
-      roundTimerService?.stopRoundTimer(gameId);
+      this.roundTimerService?.stopRoundTimer(gameId);
 
       // Check if this is the last round - if so, complete the game immediately
       const isLastRound = answerGame.currentRound >= answerGame.totalRounds;
@@ -439,7 +433,6 @@ export class GameService {
   handleNextRound(
     gameId: string,
     connections: Map<string, WebSocket>,
-    roundTimerService: RoundTimerService | null,
   ) {
     const nextGame = this.databaseService.games.get(gameId);
     if (!nextGame) return;
@@ -498,9 +491,7 @@ export class GameService {
     nextGame.roundDuration = ROUND_DURATION_MS;
 
     // Start timer to automatically send results when round expires
-    if (roundTimerService) {
-      roundTimerService.startRoundTimer(gameId, connections);
-    }
+    this.roundTimerService?.startRoundTimer(gameId, connections);
 
     // Remove correctAnswer before sending to client
     const sanitizedQuestion =
@@ -524,9 +515,8 @@ export class GameService {
     gameId: string,
     client: WebSocket,
     connections: Map<string, WebSocket>,
-    roundTimerService: RoundTimerService | null,
   ) {
-    if (!roundTimerService) {
+    if (!this.roundTimerService) {
       client.send(
         JSON.stringify({
           type: WSMsgType.ERROR,
@@ -536,7 +526,7 @@ export class GameService {
       return;
     }
 
-    const results = roundTimerService.getRoundResults(
+    const results = this.roundTimerService.getRoundResults(
       gameId,
       this.databaseService,
       this,

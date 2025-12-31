@@ -118,7 +118,6 @@ export class GameGateway implements OnModuleInit {
             await this.gameService.handleStartGame(
               message.gameId,
               this.connections,
-              this.roundTimerService,
             );
           }
           break;
@@ -132,7 +131,6 @@ export class GameGateway implements OnModuleInit {
               message.answer,
               client,
               this.connections,
-              this.roundTimerService,
             );
           }
           break;
@@ -141,7 +139,6 @@ export class GameGateway implements OnModuleInit {
             await this.gameService.handleNextRound(
               message.gameId,
               this.connections,
-              this.roundTimerService,
             );
           }
           break;
@@ -151,7 +148,6 @@ export class GameGateway implements OnModuleInit {
               message.gameId,
               client,
               this.connections,
-              this.roundTimerService,
             );
           }
           break;

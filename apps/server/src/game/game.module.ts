@@ -12,7 +12,9 @@ import { RoundTimerService } from "./round-timer.service";
   controllers: [GameController],
   providers: [
     GameUtilsService,
+    // Regular provider - let NestJS handle the injection with forwardRef in constructor
     GameService,
+    // RoundTimerService with forwardRef for GameService
     {
       provide: RoundTimerService,
       useFactory: (
@@ -23,6 +25,7 @@ import { RoundTimerService } from "./round-timer.service";
       },
       inject: [DatabaseService, forwardRef(() => GameService) as any],
     },
+    // GameGateway with all dependencies
     {
       provide: GameGateway,
       useFactory: (
@@ -51,11 +54,7 @@ import { RoundTimerService } from "./round-timer.service";
         });
         return gateway;
       },
-      inject: [
-        DatabaseService,
-        forwardRef(() => GameService) as any,
-        RoundTimerService,
-      ],
+      inject: [DatabaseService, GameService, RoundTimerService],
     },
   ],
   exports: [GameService, RoundTimerService],
