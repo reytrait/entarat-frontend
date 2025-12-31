@@ -30,7 +30,26 @@ import { RoundTimerService } from "./round-timer.service";
 				gameService: GameService,
 				roundTimerService: RoundTimerService,
 			) => {
-				return new GameGateway(databaseService, gameService, roundTimerService);
+				if (!roundTimerService) {
+					console.error("❌ RoundTimerService is null in GameGateway factory!");
+				}
+				if (!gameService) {
+					console.error("❌ GameService is null in GameGateway factory!");
+				}
+				if (!databaseService) {
+					console.error("❌ DatabaseService is null in GameGateway factory!");
+				}
+				const gateway = new GameGateway(
+					databaseService,
+					gameService,
+					roundTimerService,
+				);
+				console.log("✅ GameGateway factory created with:", {
+					hasDatabaseService: !!databaseService,
+					hasGameService: !!gameService,
+					hasRoundTimerService: !!roundTimerService,
+				});
+				return gateway;
 			},
 			inject: [
 				DatabaseService,

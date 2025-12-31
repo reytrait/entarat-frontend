@@ -288,10 +288,15 @@ export class GameService {
   handleStartGame(
     gameId: string,
     connections: Map<string, WebSocket>,
-    roundTimerService: RoundTimerService,
+    roundTimerService: RoundTimerService | null,
   ) {
     const startGame = this.databaseService.games.get(gameId);
     if (!startGame) return;
+
+    if (!roundTimerService) {
+      console.error("RoundTimerService is not available");
+      return;
+    }
 
     startGame.status = "playing";
     startGame.currentRound = 1;
@@ -332,7 +337,9 @@ export class GameService {
     startGame.roundDuration = ROUND_DURATION_MS;
 
     // Start timer to automatically send results when round expires
-    roundTimerService.startRoundTimer(gameId, connections);
+    if (roundTimerService) {
+      roundTimerService.startRoundTimer(gameId, connections);
+    }
 
     // Remove correctAnswer before sending to client
     const sanitizedQuestion =
@@ -357,7 +364,7 @@ export class GameService {
     answer: number,
     client: WebSocket,
     connections: Map<string, WebSocket>,
-    roundTimerService: RoundTimerService,
+    roundTimerService: RoundTimerService | null,
   ) {
     const answerGame = this.databaseService.games.get(gameId);
     if (!answerGame) return;
@@ -399,7 +406,7 @@ export class GameService {
       });
 
       // Stop the round timer since all players answered
-      roundTimerService.stopRoundTimer(gameId);
+      roundTimerService?.stopRoundTimer(gameId);
 
       // Check if this is the last round - if so, complete the game immediately
       const isLastRound = answerGame.currentRound >= answerGame.totalRounds;
@@ -432,7 +439,7 @@ export class GameService {
   handleNextRound(
     gameId: string,
     connections: Map<string, WebSocket>,
-    roundTimerService: RoundTimerService,
+    roundTimerService: RoundTimerService | null,
   ) {
     const nextGame = this.databaseService.games.get(gameId);
     if (!nextGame) return;
@@ -491,7 +498,9 @@ export class GameService {
     nextGame.roundDuration = ROUND_DURATION_MS;
 
     // Start timer to automatically send results when round expires
-    roundTimerService.startRoundTimer(gameId, connections);
+    if (roundTimerService) {
+      roundTimerService.startRoundTimer(gameId, connections);
+    }
 
     // Remove correctAnswer before sending to client
     const sanitizedQuestion =
@@ -515,8 +524,18 @@ export class GameService {
     gameId: string,
     client: WebSocket,
     connections: Map<string, WebSocket>,
-    roundTimerService: RoundTimerService,
+    roundTimerService: RoundTimerService | null,
   ) {
+    if (!roundTimerService) {
+      client.send(
+        JSON.stringify({
+          type: WSMsgType.ERROR,
+          message: "Round timer service unavailable",
+        }),
+      );
+      return;
+    }
+
     const results = roundTimerService.getRoundResults(
       gameId,
       this.databaseService,

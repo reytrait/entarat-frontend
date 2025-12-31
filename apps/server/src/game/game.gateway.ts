@@ -1,11 +1,9 @@
 import { Injectable, type OnModuleInit } from "@nestjs/common";
-import type { Server } from "ws";
-import { WebSocket } from "ws";
-import type { DatabaseService } from "../database/database.service";
-import type { JoinMessage } from "../types/game";
-import { WSMsgType } from "../types/game";
-import type { GameService } from "./game.service";
-import type { RoundTimerService } from "./round-timer.service";
+import { Server, WebSocket } from "ws";
+import { DatabaseService } from "../database/database.service";
+import { JoinMessage, WSMsgType } from "../types/game";
+import { GameService } from "./game.service";
+import { RoundTimerService } from "./round-timer.service";
 
 @Injectable()
 export class GameGateway implements OnModuleInit {
@@ -105,6 +103,18 @@ export class GameGateway implements OnModuleInit {
           break;
         case WSMsgType.START_GAME:
           if (typeof message.gameId === "string") {
+            if (!this.roundTimerService) {
+              console.error(
+                "RoundTimerService is not available in GameGateway",
+              );
+              client.send(
+                JSON.stringify({
+                  type: WSMsgType.ERROR,
+                  message: "Game service unavailable",
+                }),
+              );
+              return;
+            }
             await this.gameService.handleStartGame(
               message.gameId,
               this.connections,
