@@ -1,10 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 import { useUser } from "@/components/user-provider";
+import {
+  PROGRESS_UPDATE_INTERVAL_MS,
+  ROUND_DURATION_MS,
+} from "@/lib/constants/game";
 import { getDeviceId, getPlayerId } from "@/lib/utils";
-import type { GameState } from "./types";
+import type { GameState, Player, Question } from "./types";
 
-const QUESTION_DURATION = 30000; // 30 seconds per question
-const PROGRESS_INTERVAL = 100; // Update every 100ms
+const QUESTION_DURATION = ROUND_DURATION_MS;
+const PROGRESS_INTERVAL = PROGRESS_UPDATE_INTERVAL_MS;
 
 // Global connection registry to prevent multiple connections per game
 const connectionRegistry = new Map<string, WebSocket>();
@@ -23,6 +27,7 @@ export function useTriviaGame(gameId: string) {
   });
   const [autoPlay, setAutoPlay] = useState(true);
   const [progress, setProgress] = useState(0);
+  const [remainingTime, setRemainingTime] = useState<number | null>(null); // Remaining time in seconds
   const [connectionError, setConnectionError] = useState<string | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
   const progressIntervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -41,20 +46,80 @@ export function useTriviaGame(gameId: string) {
       }
     };
 
-    const startProgressTimer = () => {
+    const startProgressTimer = (
+      roundStartTime?: number,
+      roundDuration?: number,
+    ) => {
       stopProgressTimer();
-      setProgress(0);
-      const increment = (PROGRESS_INTERVAL / QUESTION_DURATION) * 100;
 
-      progressIntervalRef.current = setInterval(() => {
-        setProgress((prev) => {
-          if (prev >= 100) {
-            stopProgressTimer();
-            return 100;
-          }
-          return prev + increment;
-        });
-      }, PROGRESS_INTERVAL);
+      // If we have timing info from server (reconnecting during active round)
+      if (roundStartTime !== undefined && roundDuration !== undefined) {
+        const now = Date.now();
+        const elapsed = now - roundStartTime;
+        const actualRemaining = Math.max(0, roundDuration - elapsed);
+        const initialProgress = (elapsed / roundDuration) * 100;
+
+        setProgress(Math.min(100, Math.max(0, initialProgress)));
+        setRemainingTime(Math.ceil(actualRemaining / 1000)); // Convert to seconds
+
+        if (actualRemaining <= 0) {
+          // Round already expired
+          setProgress(100);
+          setRemainingTime(0);
+          return;
+        }
+
+        progressIntervalRef.current = setInterval(() => {
+          const currentTime = Date.now();
+          const currentElapsed = currentTime - roundStartTime;
+          const currentRemaining = Math.max(0, roundDuration - currentElapsed);
+          const remainingSeconds = Math.ceil(currentRemaining / 1000);
+
+          setRemainingTime(remainingSeconds);
+
+          setProgress(() => {
+            const newProgress = (currentElapsed / roundDuration) * 100;
+            if (newProgress >= 100 || remainingSeconds <= 0) {
+              stopProgressTimer();
+              setRemainingTime(0);
+              // Mark time as expired when timer reaches 0
+              setGameState((prev) => ({
+                ...prev,
+                timeExpired: true,
+              }));
+              return 100;
+            }
+            return Math.min(100, newProgress);
+          });
+        }, PROGRESS_INTERVAL);
+      } else {
+        // Normal case: starting fresh round
+        setProgress(0);
+        setRemainingTime(Math.ceil(QUESTION_DURATION / 1000)); // Initial countdown
+        const increment = (PROGRESS_INTERVAL / QUESTION_DURATION) * 100;
+
+        progressIntervalRef.current = setInterval(() => {
+          setProgress((prev) => {
+            const newProgress = prev + increment;
+            // Update remaining time based on progress
+            const remaining = QUESTION_DURATION * (1 - newProgress / 100);
+            const remainingSeconds = Math.ceil(remaining / 1000);
+            setRemainingTime(remainingSeconds);
+
+            if (newProgress >= 100 || remainingSeconds <= 0) {
+              stopProgressTimer();
+              setRemainingTime(0);
+              // Mark time as expired when timer reaches 0
+              setGameState((prev) => ({
+                ...prev,
+                timeExpired: true,
+              }));
+              return 100;
+            }
+            return newProgress;
+          });
+        }, PROGRESS_INTERVAL);
+      }
     };
 
     // Check if a connection already exists for this game
@@ -162,42 +227,130 @@ export function useTriviaGame(gameId: string) {
             }));
             break;
 
-          case "game_started":
-            setGameState((prev) => ({
-              ...prev,
-              round: data.round,
-              totalRounds: data.totalRounds,
-              question: data.question,
-              selectedAnswer: null,
-              showResults: false,
-              correctAnswer: null,
-              answers: [],
-            }));
-            startProgressTimer();
-            break;
+          case "game_started": {
+            const gameStartedData = data as {
+              round: number;
+              totalRounds: number;
+              question: Question;
+              roundStartTime?: number;
+              roundDuration?: number;
+              remainingTime?: number;
+            };
 
-          case "round_results":
-            setGameState((prev) => ({
-              ...prev,
-              showResults: true,
-              correctAnswer: data.correctAnswer,
-              answers: data.answers || [],
-            }));
+            // Check if time has already expired (remainingTime is 0 or negative)
+            const timeExpired =
+              gameStartedData.remainingTime !== undefined &&
+              gameStartedData.remainingTime <= 0;
+
+            // If time expired on resume, request round results or show summary
+            if (timeExpired) {
+              // Don't show the question, wait for round_results
+              // The server should send round_results if available
+              stopProgressTimer();
+              setRemainingTime(0);
+              setProgress(100);
+
+              // Set state to show that we're waiting for results
+              setGameState((prev) => ({
+                ...prev,
+                round: gameStartedData.round,
+                totalRounds: gameStartedData.totalRounds,
+                question: gameStartedData.question, // Keep question for context
+                timeExpired: true,
+                showResults: false, // Will be set to true when round_results arrives
+              }));
+
+              // Request round results if not received within a short time
+              // (Server should send it, but this is a fallback)
+              setTimeout(() => {
+                if (wsRef.current?.readyState === WebSocket.OPEN) {
+                  // Server should have already sent results, but we can log if not
+                  console.log(
+                    "Waiting for round results after expired round...",
+                  );
+                }
+              }, 500);
+            } else {
+              // Round still active, show question and start timer
+              setGameState((prev) => ({
+                ...prev,
+                round: gameStartedData.round,
+                totalRounds: gameStartedData.totalRounds,
+                question: gameStartedData.question,
+                selectedAnswer: null,
+                showResults: false,
+                correctAnswer: null,
+                answers: [],
+                timeExpired: false,
+              }));
+
+              // Use server-provided timing if available (for reconnections)
+              startProgressTimer(
+                gameStartedData.roundStartTime,
+                gameStartedData.roundDuration,
+              );
+            }
+            break;
+          }
+
+          case "round_results": {
+            const roundResultsData = data as {
+              round: number;
+              correctAnswer: number;
+              answers: Array<{
+                playerId: string;
+                player: Player | undefined;
+                answer: number;
+                isCorrect: boolean;
+              }>;
+            };
+
+            // Check if this is the last round and update state
+            // Preserve selectedAnswer so it shows what was selected
+            setGameState((prev) => {
+              const isLastRound = roundResultsData.round >= prev.totalRounds;
+              return {
+                ...prev,
+                showResults: true,
+                correctAnswer: roundResultsData.correctAnswer,
+                answers: (roundResultsData.answers || []).filter(
+                  (a): a is typeof a & { player: Player } =>
+                    a.player !== undefined,
+                ),
+                isFinished: isLastRound,
+                timeExpired: false, // Reset time expired when results are shown
+                // Keep selectedAnswer so it displays in results
+              };
+            });
             stopProgressTimer();
+            setRemainingTime(null); // Clear countdown when round ends
             break;
+          }
 
-          case "next_round":
+          case "next_round": {
+            const nextRoundData = data as {
+              round: number;
+              totalRounds: number;
+              question: Question;
+              roundStartTime?: number;
+              roundDuration?: number;
+            };
             setGameState((prev) => ({
               ...prev,
-              round: data.round,
-              question: data.question,
+              round: nextRoundData.round,
+              question: nextRoundData.question,
               selectedAnswer: null,
               showResults: false,
               correctAnswer: null,
               answers: [],
             }));
-            startProgressTimer();
+            // Use server-provided timing if available
+            startProgressTimer(
+              nextRoundData.roundStartTime,
+              nextRoundData.roundDuration,
+            );
             break;
+          }
 
           case "player_left":
             setGameState((prev) => ({
@@ -212,9 +365,24 @@ export function useTriviaGame(gameId: string) {
             setConnectionError(data.message || "An error occurred");
             break;
 
-          case "game_finished":
-            console.log("Game finished", data.scores);
+          case "game_finished": {
+            const gameFinishedData = data as {
+              scores: Array<{
+                player: Player | undefined;
+                score: number;
+              }>;
+            };
+            setGameState((prev) => ({
+              ...prev,
+              isFinished: true,
+              showResults: false,
+              question: null,
+              finalScores: gameFinishedData.scores || [],
+            }));
+            stopProgressTimer();
+            setRemainingTime(null);
             break;
+          }
         }
       } catch (error) {
         console.error("Error parsing WebSocket message:", error);
@@ -285,7 +453,14 @@ export function useTriviaGame(gameId: string) {
   }, [gameId, displayName, selectedAvatar]);
 
   const handleAnswerSelect = (answerIndex: number) => {
-    if (gameState.selectedAnswer !== null || gameState.showResults) return;
+    // Prevent selection if: already selected, results shown, or time expired
+    if (
+      gameState.selectedAnswer !== null ||
+      gameState.showResults ||
+      gameState.timeExpired
+    ) {
+      return;
+    }
 
     setGameState((prev) => ({ ...prev, selectedAnswer: answerIndex }));
 
@@ -329,6 +504,7 @@ export function useTriviaGame(gameId: string) {
     autoPlay,
     setAutoPlay,
     progress,
+    remainingTime,
     connectionError,
     handleAnswerSelect,
     handleNextRound,

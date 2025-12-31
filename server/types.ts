@@ -24,6 +24,10 @@ export type Game = {
   status: "waiting" | "playing" | "finished";
   answers: Map<string, { answer: number; round: number; timestamp: number }>;
   startTime: number | null;
+  currentQuestion: Question | null;
+  roundStartTime: number | null;
+  roundDuration: number; // Duration in milliseconds (default 30 seconds)
+  usedQuestionIds: number[]; // Track which question IDs have been used
 };
 
 export type JoinMessage = {

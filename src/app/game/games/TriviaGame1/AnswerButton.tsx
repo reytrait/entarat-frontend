@@ -32,12 +32,21 @@ export function AnswerButton({
     return "border-blue-500 bg-blue-500/20";
   };
 
+  const isDisabled =
+    gameState.showResults ||
+    gameState.selectedAnswer !== null ||
+    gameState.timeExpired;
+
   return (
     <button
       type="button"
       onClick={() => onSelect(index)}
-      disabled={gameState.showResults || gameState.selectedAnswer !== null}
-      className={`cursor-pointer rounded-lg border-2 p-4 text-left transition-all hover:scale-105 ${getAnswerColor(index)}`}
+      disabled={isDisabled}
+      className={`rounded-lg border-2 p-4 text-left transition-all ${
+        isDisabled
+          ? "cursor-not-allowed opacity-50"
+          : "cursor-pointer hover:scale-105"
+      } ${getAnswerColor(index)}`}
     >
       <Text variant="body" textColor="white">
         {option}

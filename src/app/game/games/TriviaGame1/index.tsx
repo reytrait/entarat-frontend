@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import PlayFullBgSection from "@/app/components/PlayFullBgSection";
 import { Text } from "@/components/ui/text";
 import { GameArea } from "./GameArea";
+import { GameFinished } from "./GameFinished";
 import { PlayersPanel } from "./PlayersPanel";
 import type { TriviaGameProps } from "./types";
 import { useTriviaGame } from "./useTriviaGame";
@@ -15,6 +16,7 @@ export function TriviaGame({ gameId }: TriviaGameProps) {
     autoPlay,
     setAutoPlay,
     progress,
+    remainingTime,
     connectionError,
     handleAnswerSelect,
     handleNextRound,
@@ -46,6 +48,15 @@ export function TriviaGame({ gameId }: TriviaGameProps) {
     return <WaitingScreen onStartGame={handleStartGame} />;
   }
 
+  // Show game finished screen when game is complete
+  if (gameState.isFinished && gameState.finalScores) {
+    return (
+      <PlayFullBgSection>
+        <GameFinished gameState={gameState} />
+      </PlayFullBgSection>
+    );
+  }
+
   return (
     <PlayFullBgSection>
       <div className="min-h-screen bg-gradient-to-r from-orange-500/20 via-purple-500/20 to-purple-900/40 p-4 md:p-8">
@@ -53,6 +64,7 @@ export function TriviaGame({ gameId }: TriviaGameProps) {
           <GameArea
             gameState={gameState}
             progress={progress}
+            remainingTime={remainingTime}
             onAnswerSelect={handleAnswerSelect}
             onNextRound={handleNextRound}
           />

@@ -1,7 +1,9 @@
 import type { IncomingMessage } from "http";
 import WebSocket from "ws";
+import { ROUND_DURATION_MS } from "../src/lib/constants/game";
 import { db } from "./db";
 import type { JoinMessage, WebSocketMessage } from "./types";
+import { getUnusedQuestion, randomizeQuestionOptions } from "./utils";
 
 // Store active connections
 export const connections = new Map<string, WebSocket>();
@@ -96,16 +98,27 @@ export function handleWebSocketConnection(
 
           // Add player to game
           if (!db.games.has(gameId)) {
+            // Ensure totalRounds doesn't exceed available questions
+            const maxRounds = db.questions.length;
+            const requestedRounds = joinMessage.totalRounds || 12;
+            const totalRounds = Math.min(requestedRounds, maxRounds);
+
             db.games.set(gameId, {
               id: gameId,
               playerIds: [],
               currentRound: 0,
-              totalRounds: joinMessage.totalRounds || 12,
+              totalRounds: totalRounds,
               status: "waiting",
               answers: new Map(),
               startTime: null,
+              currentQuestion: null,
+              roundStartTime: null,
+              roundDuration: ROUND_DURATION_MS,
+              usedQuestionIds: [], // Track used questions
             });
-            console.log(`🎮 New game created: ${gameId}`);
+            console.log(
+              `🎮 New game created: ${gameId} with ${totalRounds} rounds (max available: ${maxRounds})`,
+            );
           }
 
           const currentGame = db.games.get(gameId);
@@ -161,6 +174,85 @@ export function handleWebSocketConnection(
               },
             }),
           );
+
+          // If game is in progress, check if round has expired
+          if (
+            currentGame &&
+            currentGame.status === "playing" &&
+            currentGame.currentQuestion &&
+            currentGame.roundStartTime
+          ) {
+            const now = Date.now();
+            const elapsed = now - currentGame.roundStartTime;
+            const remaining = Math.max(0, currentGame.roundDuration - elapsed);
+            const timeExpired = remaining <= 0;
+
+            // If time expired, calculate and send round results
+            if (timeExpired) {
+              const currentQuestion = currentGame.currentQuestion;
+
+              // Calculate scores for all players who answered
+              currentGame.answers.forEach((answerData, pid) => {
+                if (answerData.answer === currentQuestion.correctAnswer) {
+                  const player = db.players.get(pid);
+                  if (player) {
+                    player.score += 1;
+                  }
+                }
+              });
+
+              // Include all players in results (those who answered and those who didn't)
+              const allAnswers = Array.from(currentGame.answers.entries()).map(
+                ([pid, ans]) => ({
+                  playerId: pid,
+                  player: db.players.get(pid),
+                  answer: ans.answer,
+                  isCorrect: ans.answer === currentQuestion.correctAnswer,
+                }),
+              );
+
+              // Add entries for players who didn't answer (answer: -1 means no answer)
+              currentGame.playerIds.forEach((pid) => {
+                if (!currentGame.answers.has(pid)) {
+                  allAnswers.push({
+                    playerId: pid,
+                    player: db.players.get(pid),
+                    answer: -1, // No answer submitted
+                    isCorrect: false,
+                  });
+                }
+              });
+
+              // Send round results to reconnecting player
+              ws.send(
+                JSON.stringify({
+                  type: "round_results",
+                  round: currentGame.currentRound,
+                  correctAnswer: currentQuestion.correctAnswer,
+                  answers: allAnswers,
+                }),
+              );
+              console.log(
+                `📤 Sent round results to reconnecting player - Round: ${currentGame.currentRound} (expired, ${currentGame.answers.size}/${currentGame.playerIds.length} answered)`,
+              );
+            } else {
+              // Round still active or no answers yet, send current question
+              ws.send(
+                JSON.stringify({
+                  type: "game_started",
+                  round: currentGame.currentRound,
+                  totalRounds: currentGame.totalRounds,
+                  question: currentGame.currentQuestion,
+                  roundStartTime: currentGame.roundStartTime,
+                  roundDuration: currentGame.roundDuration,
+                  remainingTime: remaining, // Include remaining time for client
+                }),
+              );
+              console.log(
+                `📤 Sent current question to reconnecting player - Round: ${currentGame.currentRound}, Remaining: ${Math.round(remaining / 1000)}s`,
+              );
+            }
+          }
           break;
         }
 
@@ -172,16 +264,43 @@ export function handleWebSocketConnection(
             startGame.currentRound = 1;
             startGame.startTime = Date.now();
 
-            // Get question for current round
-            const questionIndex =
-              (startGame.currentRound - 1) % db.questions.length;
-            const question = db.questions[questionIndex];
+            // Get an unused question (ensures no repeats)
+            const unusedQuestion = getUnusedQuestion(
+              db.questions,
+              startGame.usedQuestionIds,
+            );
+
+            if (!unusedQuestion) {
+              // No more questions available, end game
+              startGame.status = "finished";
+              broadcastToGame(gameId, {
+                type: "game_finished",
+                scores: startGame.playerIds.map((id) => ({
+                  player: db.players.get(id),
+                  score: db.players.get(id)?.score || 0,
+                })),
+              });
+              break;
+            }
+
+            // Randomize options and get new correct answer index
+            const randomizedQuestion = randomizeQuestionOptions(unusedQuestion);
+
+            // Mark this question as used
+            startGame.usedQuestionIds.push(unusedQuestion.id);
+
+            // Store current question (with randomized options) and round start time
+            startGame.currentQuestion = randomizedQuestion;
+            startGame.roundStartTime = Date.now();
+            startGame.roundDuration = ROUND_DURATION_MS;
 
             broadcastToGame(gameId, {
               type: "game_started",
               round: startGame.currentRound,
               totalRounds: startGame.totalRounds,
-              question: question,
+              question: randomizedQuestion,
+              roundStartTime: startGame.roundStartTime,
+              roundDuration: startGame.roundDuration,
             });
           }
           break;
@@ -199,13 +318,16 @@ export function handleWebSocketConnection(
 
             // Check if all players answered
             if (answerGame.answers.size === answerGame.playerIds.length) {
-              const questionIndex =
-                (answerGame.currentRound - 1) % db.questions.length;
-              const question = db.questions[questionIndex];
+              // Use the current question (already randomized) for scoring
+              const currentQuestion = answerGame.currentQuestion;
+              if (!currentQuestion) {
+                console.error("No current question found for scoring");
+                break;
+              }
 
-              // Calculate scores
+              // Calculate scores based on the randomized question's correct answer
               answerGame.answers.forEach((answerData, pid) => {
-                if (answerData.answer === question.correctAnswer) {
+                if (answerData.answer === currentQuestion.correctAnswer) {
                   const player = db.players.get(pid);
                   if (player) {
                     player.score += 1;
@@ -213,17 +335,17 @@ export function handleWebSocketConnection(
                 }
               });
 
-              // Send results
+              // Send results using the randomized question's correct answer
               broadcastToGame(gameId, {
                 type: "round_results",
                 round: answerGame.currentRound,
-                correctAnswer: question.correctAnswer,
+                correctAnswer: currentQuestion.correctAnswer,
                 answers: Array.from(answerGame.answers.entries()).map(
                   ([pid, ans]) => ({
                     playerId: pid,
                     player: db.players.get(pid),
                     answer: ans.answer,
-                    isCorrect: ans.answer === question.correctAnswer,
+                    isCorrect: ans.answer === currentQuestion.correctAnswer,
                   }),
                 ),
               });
@@ -260,16 +382,44 @@ export function handleWebSocketConnection(
                 })),
               });
             } else {
-              // Get next question
-              const questionIndex =
-                (nextGame.currentRound - 1) % db.questions.length;
-              const question = db.questions[questionIndex];
+              // Get an unused question (ensures no repeats)
+              const unusedQuestion = getUnusedQuestion(
+                db.questions,
+                nextGame.usedQuestionIds,
+              );
+
+              if (!unusedQuestion) {
+                // No more questions available, end game
+                nextGame.status = "finished";
+                broadcastToGame(gameId, {
+                  type: "game_finished",
+                  scores: nextGame.playerIds.map((id) => ({
+                    player: db.players.get(id),
+                    score: db.players.get(id)?.score || 0,
+                  })),
+                });
+                break;
+              }
+
+              // Randomize options and get new correct answer index
+              const randomizedQuestion =
+                randomizeQuestionOptions(unusedQuestion);
+
+              // Mark this question as used
+              nextGame.usedQuestionIds.push(unusedQuestion.id);
+
+              // Store current question (with randomized options) and round start time
+              nextGame.currentQuestion = randomizedQuestion;
+              nextGame.roundStartTime = Date.now();
+              nextGame.roundDuration = ROUND_DURATION_MS;
 
               broadcastToGame(gameId, {
                 type: "next_round",
                 round: nextGame.currentRound,
                 totalRounds: nextGame.totalRounds,
-                question: question,
+                question: randomizedQuestion,
+                roundStartTime: nextGame.roundStartTime,
+                roundDuration: nextGame.roundDuration,
               });
             }
           }

@@ -29,6 +29,12 @@ export type GameState = {
     answer: number;
     isCorrect: boolean;
   }>;
+  isFinished?: boolean;
+  finalScores?: Array<{
+    player: Player | undefined;
+    score: number;
+  }>;
+  timeExpired?: boolean; // Track if time has run out
 };
 
 export type TriviaGameProps = {
