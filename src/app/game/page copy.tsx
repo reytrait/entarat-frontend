@@ -3,7 +3,7 @@
 import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { GameStartLoader } from "@/app/game/components/GameStartLoader";
-import { TriviaGame } from "@/app/game/components/TriviaGame";
+import { TriviaGame } from "@/app/game/games/TriviaGame1";
 
 export default function GamePage() {
   const searchParams = useSearchParams();
