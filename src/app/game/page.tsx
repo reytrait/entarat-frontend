@@ -2,7 +2,7 @@
 
 import { useSearchParams } from "next/navigation";
 import { useState } from "react";
-import { GameStartLoader } from "@/app/components/GameStartLoader";
+import { GameStartLoader } from "@/app/game/components/GameStartLoader";
 import PlayFullBgSection from "@/app/components/PlayFullBgSection";
 import { Text } from "@/components/ui/text";
 

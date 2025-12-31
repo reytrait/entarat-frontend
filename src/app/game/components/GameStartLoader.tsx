@@ -76,16 +76,11 @@ export function GameStartLoader({ onComplete }: GameStartLoaderProps) {
             <div className="flex gap-2">
               {DOT_IDS.map((dotId, index) => {
                 const isFilled = index < filledDots;
-                const isOrange = index < 5;
                 return (
                   <div
                     key={dotId}
                     className={`h-6 w-6 rounded-full transition-all duration-300 ${
-                      isFilled
-                        ? isOrange
-                          ? "bg-[#FFA900]"
-                          : "bg-orange-700"
-                        : "bg-[#FFA900]/32"
+                      isFilled ? "bg-[#FFA900]" : "bg-[#FFA900]/32"
                     }`}
                   />
                 );
