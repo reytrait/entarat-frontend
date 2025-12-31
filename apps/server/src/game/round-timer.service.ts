@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import type { WebSocket } from "ws";
+import { WebSocket } from "ws";
 import { DatabaseService } from "../database/database.service";
 import { WSMsgType } from "../types/game";
 import { GameService } from "./game.service";

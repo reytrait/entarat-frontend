@@ -8,56 +8,56 @@ import { GameUtilsService } from "./game-utils.service";
 import { RoundTimerService } from "./round-timer.service";
 
 @Module({
-	imports: [DatabaseModule],
-	controllers: [GameController],
-	providers: [
-		GameUtilsService,
-		GameService,
-		{
-			provide: RoundTimerService,
-			useFactory: (
-				databaseService: DatabaseService,
-				gameService: GameService,
-			) => {
-				return new RoundTimerService(databaseService, gameService);
-			},
-			inject: [DatabaseService, forwardRef(() => GameService) as any],
-		},
-		{
-			provide: GameGateway,
-			useFactory: (
-				databaseService: DatabaseService,
-				gameService: GameService,
-				roundTimerService: RoundTimerService,
-			) => {
-				if (!roundTimerService) {
-					console.error("❌ RoundTimerService is null in GameGateway factory!");
-				}
-				if (!gameService) {
-					console.error("❌ GameService is null in GameGateway factory!");
-				}
-				if (!databaseService) {
-					console.error("❌ DatabaseService is null in GameGateway factory!");
-				}
-				const gateway = new GameGateway(
-					databaseService,
-					gameService,
-					roundTimerService,
-				);
-				console.log("✅ GameGateway factory created with:", {
-					hasDatabaseService: !!databaseService,
-					hasGameService: !!gameService,
-					hasRoundTimerService: !!roundTimerService,
-				});
-				return gateway;
-			},
-			inject: [
-				DatabaseService,
-				forwardRef(() => GameService) as any,
-				RoundTimerService,
-			],
-		},
-	],
-	exports: [GameService, RoundTimerService],
+  imports: [DatabaseModule],
+  controllers: [GameController],
+  providers: [
+    GameUtilsService,
+    GameService,
+    {
+      provide: RoundTimerService,
+      useFactory: (
+        databaseService: DatabaseService,
+        gameService: GameService,
+      ) => {
+        return new RoundTimerService(databaseService, gameService);
+      },
+      inject: [DatabaseService, forwardRef(() => GameService) as any],
+    },
+    {
+      provide: GameGateway,
+      useFactory: (
+        databaseService: DatabaseService,
+        gameService: GameService,
+        roundTimerService: RoundTimerService,
+      ) => {
+        if (!roundTimerService) {
+          console.error("❌ RoundTimerService is null in GameGateway factory!");
+        }
+        if (!gameService) {
+          console.error("❌ GameService is null in GameGateway factory!");
+        }
+        if (!databaseService) {
+          console.error("❌ DatabaseService is null in GameGateway factory!");
+        }
+        const gateway = new GameGateway(
+          databaseService,
+          gameService,
+          roundTimerService,
+        );
+        console.log("✅ GameGateway factory created with:", {
+          hasDatabaseService: !!databaseService,
+          hasGameService: !!gameService,
+          hasRoundTimerService: !!roundTimerService,
+        });
+        return gateway;
+      },
+      inject: [
+        DatabaseService,
+        forwardRef(() => GameService) as any,
+        RoundTimerService,
+      ],
+    },
+  ],
+  exports: [GameService, RoundTimerService],
 })
 export class GameModule {}
