@@ -11,11 +11,13 @@ import {
   SITE_CONFIG,
   TEMP_PAGES_CREATED,
 } from "../../lib/constants";
+import { useEffect, useState } from "react";
 
 const HeroHeader = () => {
   const router = useRouter();
   const pathname = usePathname();
   const { theme } = useTheme();
+  const [logo, setLogo] = useState<string>('');
 
   const HIDDEN_HEADER_PAGES = ["/game-setup", "/join-game"];
   const REMOVE_NAVS = ["/game-setup", "/join-game"];
@@ -30,9 +32,15 @@ const HeroHeader = () => {
   const handleCreateGame = () => {
     router.push("/game-setup");
   };
+
+
+  useEffect(() => {
+    if(theme)  {
+    setLogo(theme === "dark" ? dark : light);}
+  }, [theme]);
+
+ 
   return (
-    //   {/* Header */}
-    // <header className="bg-main-bg">
     <header>
       {TEMP_PAGES_CREATED && (
         <div className="fixed top-0 right-0 bg-red-950-200 z-99 flex gap-2">
@@ -53,14 +61,16 @@ const HeroHeader = () => {
           {/* Light mode logo (black) */}
 
           <Link href="/" className="z-2 cursor-pointer">
+          {logo && (
             <Image
-              src={theme === "dark" ? dark : light}
+              src={logo}
               alt={SITE_CONFIG.logo.alt}
               width={200}
               height={24}
               className="h-6 w-auto md:h-8"
               priority
             />
+          )}
           </Link>
         </div>
 

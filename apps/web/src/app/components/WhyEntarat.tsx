@@ -107,7 +107,7 @@ export function WhyEntarat() {
               </div>
 
               {/* Title */}
-              <Text variant="h3" textColor="default" className="mb-3">
+              <Text variant="h3" textColor="white" className="mb-3">
                 {feature.title}
               </Text>
 

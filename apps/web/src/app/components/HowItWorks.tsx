@@ -60,7 +60,7 @@ function HowItWorksPink() {
               {HOW_IT_WORKS.steps.map((step) => (
                 <div key={step.title} className="flex gap-4">
                   <div className="shrink-0">
-                    <span className="text-2xl">•</span>
+                    <span className="text-2xl text-white">•</span>
                   </div>
                   <div className="flex-1">
                     <Text variant="h3" textColor="white" className="mb-2">
@@ -114,7 +114,7 @@ export function HowItWorks() {
             {/* Left Side - Title and Philosophy */}
             <div className="flex flex-col justify-center">
               <div className="mb-8 flex items-center gap-4">
-                <Text variant="h2" textColor="white">
+                <Text variant="h2" textColor="default">
                   {HOW_IT_WORKS.philosophy.title}
                 </Text>
                 <span className="text-4xl">
@@ -124,7 +124,7 @@ export function HowItWorks() {
 
               <Text
                 variant="lead"
-                textColor="white"
+                textColor="default"
                 leading="relaxed"
                 className="mb-8"
               >

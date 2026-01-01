@@ -9,7 +9,7 @@ export function Hero() {
   return (
     <section className="relative min-h-screen w-full">
       {/* Content */}
-      <div className="relative z-5 flex min-h-screen flex-col">
+      <div className="relative flex min-h-screen flex-col">
         <HeroHeader />
 
         {/* Hero Section */}
