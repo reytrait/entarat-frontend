@@ -26,6 +26,7 @@ export default function RootLayout({
 }: Readonly<{
     children: React.ReactNode;
 }>) {
+    const isProduction = process.env.NODE_ENV === "production";
     return (
         <html lang="en" suppressHydrationWarning>
             <body className={`${baloo2.variable} antialiased`}>
@@ -37,17 +38,16 @@ export default function RootLayout({
                 </ThemeProvider>
                 <ConditionalFooter />
             </body>
-            <GoogleAnalytics gaId="G-VQLETD20GH" />
-            {
-              process.env.NODE_ENV === "production" && (
+            {isProduction && <GoogleAnalytics gaId="G-VQLETD20GH" />}
+            {isProduction && (
                 <Script
-                id="Cookiebot"
-                src="https://consent.cookiebot.com/uc.js"
-                data-cbid="b6a238b3-62cc-4274-bd57-833ed7c74791"
-                type="text/javascript"
-                async
+                    id="Cookiebot"
+                    src="https://consent.cookiebot.com/uc.js"
+                    data-cbid="b6a238b3-62cc-4274-bd57-833ed7c74791"
+                    type="text/javascript"
+                    async
                 />
-              )}
+            )}
         </html>
     );
 }
